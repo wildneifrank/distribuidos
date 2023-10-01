@@ -47,9 +47,13 @@ def handle_client(client_socket):
             print(message.decode('utf-8'))
             if not message:
                 break
-            if(message.decode('utf-8') == 'oi'):
-                print('deu certo')
-            broadcast(message, client_socket)
+            if(message.decode('utf-8').strip() == '/usuarios'):
+                client_socket.send('Usuarios conectados:'.encode('utf-8'))
+                for name in names:
+                    print(name)
+                    client_socket.send(name.encode('utf-8'))
+            else:
+                broadcast(message, client_socket)
         except:
             # Se não for possível receber a mensagem, desconecta o cliente
             break
