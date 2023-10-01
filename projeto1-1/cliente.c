@@ -12,9 +12,8 @@ char user[256];
 // Função para envio de mensagens
 void SendMessageThread() {
     // Enviar dados ao servidor
-        
-        printf("Digite o usuário desejado: ");
-        scanf("%s", user);
+    printf("Digite o nick desejado: ");
+    scanf("%s", user);
         if (send(clientSocket, user, strlen(user), 0) < 0) {
             printf("Erro ao enviar dados ao servidor\n");
         }
@@ -55,7 +54,7 @@ void ReceiveMessageThread() {
             WSACleanup();
             exit(0);
         }
-        
+                
         printf("%s\n", buffer);
     }
 }

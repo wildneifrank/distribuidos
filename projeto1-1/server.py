@@ -25,8 +25,12 @@ def broadcast(message, client_socket):
 # Função para lidar com a conexão de um cliente
 def handle_client(client_socket):
     # Leitura do nome do usuário após a conexão
-    user = client_socket.recv(1024).decode('utf-8')
-    
+    if(len(clients)<=2):
+        user = client_socket.recv(1024).decode('utf-8')
+    else:
+        client_socket.send("Sala cheia.".encode('utf-8'))
+        clients.remove(client_socket)
+        client_socket.close()
     # Verificação se o nome de usuário já está em uso
 
     condition = True
@@ -50,8 +54,24 @@ def handle_client(client_socket):
             if(message.decode('utf-8').strip() == '/usuarios'):
                 client_socket.send('Usuarios conectados:'.encode('utf-8'))
                 for name in names:
-                    print(name)
+                    print(name,'\n')
                     client_socket.send(name.encode('utf-8'))
+            elif(message.decode('utf-8').strip() == '/nick'):
+                #mudar o nick
+                client_socket.send('Digite o novo nick: '.encode('utf-8'))
+                new_user = client_socket.recv(1024).decode('utf-8').strip()
+                if not(new_user in names):
+                    names.remove(user)
+                    names.append(new_user)
+                    print('nomes',names)
+                    user = new_user
+                else:
+                    client_socket.send('Falha ao trocar de nick. Nick já escolhido.'.encode('utf-8'))
+
+            elif(message.decode('utf-8').strip() == '/sair'):
+                names.remove(user)
+                clients.remove(client_socket)
+                client_socket.close()
             else:
                 broadcast(message, client_socket)
         except:
