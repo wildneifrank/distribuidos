@@ -3,7 +3,7 @@ import threading
 import time
 
 # Configurações do servidor
-HOST = '127.0.0.1'  # Endereço IP do servidor
+HOST = '2804:2004:52a8:0:6c1a:f70e:46b2:a3c4'  # Endereço IP do servidor
 PORT = 8922         # Porta a ser usada pelo servidor
 
 # Lista de clientes conectados
@@ -88,7 +88,7 @@ def handle_client(client_socket):
     client_socket.close()
 
 # Configuração do servidor
-server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+server = socket.socket(socket.AF_INET6, socket.SOCK_STREAM)
 server.bind((HOST, PORT))
 server.listen(4)  # Aceita até 4 conexões simultâneas
 
