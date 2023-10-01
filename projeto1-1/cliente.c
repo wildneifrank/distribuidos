@@ -21,8 +21,6 @@ void SendMessageThread() {
         // Enviar dados ao servidor
         char message[256];
         fgets(message, sizeof(message), stdin);
-        char message_to[300];
-        sprintf(message_to, "%s:%s", user, message);
         if (send(clientSocket, message, strlen(message), 0) < 0) {
             printf("Erro ao enviar dados ao servidor\n");
             break;

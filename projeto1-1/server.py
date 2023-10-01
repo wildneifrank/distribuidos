@@ -69,6 +69,9 @@ def handle_client(client_socket):
                     client_socket.send('Falha ao trocar de nick. Nick já escolhido.'.encode('utf-8'))
 
             elif(message.decode('utf-8').strip() == '/sair'):
+                saida = user + ' saiu da sala.'
+                broadcast(saida, client_socket)
+                client_socket.send('Até a próxima'.encode('utf-8'))
                 names.remove(user)
                 clients.remove(client_socket)
                 client_socket.close()
