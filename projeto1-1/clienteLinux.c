@@ -1,22 +1,26 @@
 #include <stdio.h>
-#include <winsock2.h>
 #include <stdlib.h>
 #include <string.h>
-#include <process.h>
+#include <unistd.h>
+#include <arpa/inet.h>
+#include <netinet/in.h>
+#include <pthread.h>
 
-#pragma comment(lib, "ws2_32.lib")
-// oi
-SOCKET clientSocket;
+#define PORT 8922
+
+int clientSocket;
 char user[256];
 
 // Função para envio de mensagens
-void SendMessageThread() {
+void *SendMessageThread(void *arg) {
     // Enviar dados ao servidor
     printf("Digite o nick desejado: ");
     scanf("%s", user);
-        if (send(clientSocket, user, strlen(user), 0) < 0) {
-            printf("Erro ao enviar dados ao servidor\n");
-        }
+    if (send(clientSocket, user, strlen(user), 0) < 0) {
+        printf("Erro ao enviar dados ao servidor\n");
+        pthread_exit(NULL);
+    }
+
     while (1) {
         // Enviar dados ao servidor
         char message[256];
@@ -26,89 +30,76 @@ void SendMessageThread() {
             break;
         }
     }
+    pthread_exit(NULL);
 }
 
 // Função para recebimento de mensagens
-void ReceiveMessageThread() {
+void *ReceiveMessageThread(void *arg) {
     while (1) {
         // Receber resposta do servidor
         char buffer[1024];
         memset(buffer, 0, sizeof(buffer));
         int bytesReceived = recv(clientSocket, buffer, sizeof(buffer), 0);
-        
+
         if (bytesReceived < 0) {
             printf("Erro ao receber dados do servidor\n");
-            closesocket(clientSocket);
-            WSACleanup();
-            exit(0);
+            close(clientSocket);
+            exit(1);
         } else if (bytesReceived == 0) {
             printf("Servidor encerrou a conexão\n");
-            closesocket(clientSocket);
-            WSACleanup();
-            exit(0);
+            close(clientSocket);
+            exit(1);
         } else if (strcmp(buffer, "code:0") == 0) {
             printf("Nome de usuário já em uso. Por favor, escolha outro nome.\n");
-            closesocket(clientSocket);
-            WSACleanup();
-            exit(0);
+            close(clientSocket);
+            exit(1);
         }
-                
+
         printf("%s\n", buffer);
     }
 }
 
-
 int main() {
-    WSADATA wsaData;
-    if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
-        printf("Erro ao inicializar o Winsock\n");
-        return 1;
-    }
-    char ip[20];
-    printf("Digite o ip do server desejado: ");
+    char ip[40];
+    printf("Digite o IP do server desejado: ");
     scanf("%s", ip);
-    char ip2[20] = "127.0.0.1";
-    ip[strcspn(ip, "\n")] = '\0'; 
 
-    int PORT;
+    int namePort; //mudei o nome
     printf("Digite a porta do server desejado: ");
-    scanf("%d", &PORT);
-    PORT = 8922;
+    scanf("%d", &namePort);
 
     // Criar o socket
-    clientSocket = socket(AF_INET, SOCK_STREAM, 0);
-    if (clientSocket == INVALID_SOCKET) {
+    clientSocket = socket(AF_INET6, SOCK_STREAM, 0);
+    if (clientSocket == -1) {
         printf("Erro ao criar o socket\n");
-        WSACleanup();
         return 1;
     }
 
     // Definir o endereço do servidor
-    struct sockaddr_in serverAddress;
-    serverAddress.sin_family = AF_INET;
-    serverAddress.sin_port = htons(PORT);
-    serverAddress.sin_addr.s_addr = inet_addr(ip2);  // Coloque o IP do servidor aqui
+    struct sockaddr_in6 serverAddress;
+    memset(&serverAddress, 0, sizeof(serverAddress));
+    serverAddress.sin6_family = AF_INET6;
+    serverAddress.sin6_port = htons(namePort); // Mudei aqui
+    inet_pton(AF_INET6, ip, &(serverAddress.sin6_addr));
 
     // Conectar ao servidor
     if (connect(clientSocket, (struct sockaddr*)&serverAddress, sizeof(serverAddress)) < 0) {
         printf("Erro ao conectar ao servidor\n");
-        closesocket(clientSocket);
-        WSACleanup();
+        close(clientSocket);
         return 1;
     }
 
     // Criar threads para envio e recebimento de mensagens
-    _beginthread(SendMessageThread, 0, NULL);
-    _beginthread(ReceiveMessageThread, 0, NULL);
+    pthread_t sendThread, receiveThread;
+    pthread_create(&sendThread, NULL, SendMessageThread, NULL);
+    pthread_create(&receiveThread, NULL, ReceiveMessageThread, NULL);
 
     // Aguardar pelo término das threads
-    while (1) {
-        // Espera infinita
-    }
+    pthread_join(sendThread, NULL);
+    pthread_join(receiveThread, NULL);
 
-    // Fechar o socket e finalizar o Winsock
-    closesocket(clientSocket);
-    WSACleanup();
+    // Fechar o socket
+    close(clientSocket);
 
     return 0;
 }
