@@ -76,7 +76,8 @@ def handle_client(client_socket):
                 clients.remove(client_socket)
                 client_socket.close()
             else:
-                broadcast(message, client_socket)
+                message = user+': '+message.decode('utf-8').strip()
+                broadcast(message.encode('utf-8'), client_socket)
         except:
             # Se não for possível receber a mensagem, desconecta o cliente
             break
