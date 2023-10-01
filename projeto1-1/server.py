@@ -1,7 +1,5 @@
 import socket
 import threading
-import time
-
 # Configurações do servidor
 HOST = '127.0.0.1'  # Endereço IP do servidor
 PORT = 8922         # Porta a ser usada pelo servidor
