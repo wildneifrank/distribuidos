@@ -120,54 +120,54 @@ def sensor_handle(sender):
     return 0
 
 #Atuador
-def atuador_handle(sender):
-    server_ip = '192.168.1.245'
-    server_port = 6001
-    # Crie um socket TCP
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+# def atuador_handle(sender):
+#     server_ip = '192.168.1.245'
+#     server_port = 6001
+#     # Crie um socket TCP
+#     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-    # Vincular o socket ao endereço e porta do servidor
-    sock.bind((server_ip, server_port))
+#     # Vincular o socket ao endereço e porta do servidor
+#     sock.bind((server_ip, server_port))
 
-    # Espere por conexões de clientes
-    sock.listen(1)
+#     # Espere por conexões de clientes
+#     sock.listen(1)
 
-    print(f"Servidor TCP escutando em {server_ip}:{server_port}")
-    objetos[sender] = None
+#     print(f"Servidor TCP escutando em {server_ip}:{server_port}")
+#     objetos[sender] = None
 
-    while True:
-        conn, addr = sock.accept()
-        data = senmes.SensorMessage()
-        data.ParseFromString(conn.recv(1024))
-        objetos[sender] = data.valor
-        print(f"Conexão estabelecida com {objetos}")
+#     while True:
+#         conn, addr = sock.accept()
+#         data = senmes.SensorMessage()
+#         data.ParseFromString(conn.recv(1024))
+#         objetos[sender] = data.valor
+#         print(f"Conexão estabelecida com {objetos}")
         
-    return 0
+#     return 0
 
 #Ar-condicionado
-def ac_handle(sender):
-    server_ip = '192.168.1.245'
-    server_port = 6001
-    # Crie um socket TCP
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+# def ac_handle(sender):
+#     server_ip = '192.168.1.245'
+#     server_port = 6001
+#     # Crie um socket TCP
+#     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-    # Vincular o socket ao endereço e porta do servidor
-    sock.bind((server_ip, server_port))
+#     # Vincular o socket ao endereço e porta do servidor
+#     sock.bind((server_ip, server_port))
 
-    # Espere por conexões de clientes
-    sock.listen(1)
+#     # Espere por conexões de clientes
+#     sock.listen(1)
 
-    print(f"Servidor TCP escutando em {server_ip}:{server_port}")
-    objetos[sender] = None
+#     print(f"Servidor TCP escutando em {server_ip}:{server_port}")
+#     objetos[sender] = None
 
-    while True:
-        conn, addr = sock.accept()
-        data = senmes.SensorMessage()
-        data.ParseFromString(conn.recv(1024))
-        objetos[sender] = data.valor
-        print(f"Conexão estabelecida com {objetos}")
+#     while True:
+#         conn, addr = sock.accept()
+#         data = senmes.SensorMessage()
+#         data.ParseFromString(conn.recv(1024))
+#         objetos[sender] = data.valor
+#         print(f"Conexão estabelecida com {objetos}")
         
-    return 0
+#     return 0
 
 
 
