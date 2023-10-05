@@ -2,6 +2,7 @@ import socket
 import struct
 import time
 from protoBuff import MulticastMessage_pb2 as mumes
+from protoBuff import SensorMessage_pb2 as senmes
 import threading
 import MulticastReceiver as mrcv
 
@@ -110,7 +111,10 @@ def sensor_handle(sender):
 
     while True:
         conn, addr = sock.accept()
-        print(f"Conexão estabelecida com {addr}")
+        data = senmes.SensorMessage()
+        data.ParseFromString(conn.recv(1024))
+        
+        print(f"Conexão estabelecida com {data.valor}")
     return 0
 
 #Atuador
@@ -128,6 +132,8 @@ def ac_handle(sender):
 if __name__ == "__main__":
     # Crie uma thread para executar a função multicast_sender
     multicast_sender()
+
+    objetos = []
 
     multicast_thread_receiver = threading.Thread(target=multicast_receiver)
 
