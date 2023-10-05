@@ -7,7 +7,7 @@ import MulticastReceiver as mrcv
 
 def multicast_sender():
     # Configurações do multicast
-    multicast_group = '224.0.0.1'
+    multicast_group = '224.0.0.153'
     multicast_port = 5000
 
     # Crie um socket UDP para multicast
@@ -93,6 +93,10 @@ def sensor_handle(sender, conn):
             message = senmes.SensorMessage()
             message.ParseFromString(data)
             objetos[sender] = message.valor
+            if(message.valor == ''):
+                obj_sock.remove(conn)
+                conn.close()
+                break
             print(f"Valor é: {objetos}")
     
     except:        
@@ -155,11 +159,11 @@ def sensor_handle(sender, conn):
 
 if __name__ == "__main__":
     # Crie uma thread para executar a função multicast_sender
-    multicast_sender()
+    #multicast_sender()
 
     objetos = {}
     obj_sock = []
-    server_ip = '192.168.1.245'
+    server_ip = '127.0.0.1'
     server_port = 8002
     # Crie um socket TCP
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
