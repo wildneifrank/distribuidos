@@ -1,5 +1,4 @@
 import socket
-import netifaces
 import subprocess
 from protoBuff import MulticastMessage_pb2 as MulticastMessage
 

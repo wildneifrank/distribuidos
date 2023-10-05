@@ -49,7 +49,7 @@ def multicast_sender():
         multicast_socket.close()
 
 def multicast_receiver():
-    server_ip = '192.168.1.245'
+    server_ip = '192.168.60.83'
     server_port = 6000
     # Crie um socket TCP
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
