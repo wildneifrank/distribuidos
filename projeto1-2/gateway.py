@@ -77,6 +77,9 @@ def multicast_receiver():
             #sensor
             if(type == '0'):
                 print('sensor')
+                sensor_thread = threading.Thread(target=sensor_handle(sender))
+                sensor_thread.start()
+                sensor_thread.join()
 
             #atuador
             elif(type == '1'):
@@ -88,7 +91,37 @@ def multicast_receiver():
 
         conn.close()
 
+############################# tratamentos de objetos #####################################
 
+#Sensor
+def sensor_handle(sender):
+    server_ip = '192.168.1.245'
+    server_port = 6001
+    # Crie um socket TCP
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+    # Vincular o socket ao endereço e porta do servidor
+    sock.bind((server_ip, server_port))
+
+    # Espere por conexões de clientes
+    sock.listen(1)
+
+    print(f"Servidor TCP escutando em {server_ip}:{server_port}")
+
+    while True:
+        conn, addr = sock.accept()
+        print(f"Conexão estabelecida com {addr}")
+    return 0
+
+#Atuador
+def atuador_handle(sender):
+
+    return 0
+
+#Ar-condicionado
+def ac_handle(sender):
+
+    return 0
 
 
 
