@@ -1,46 +1,47 @@
 import socket
-import netifaces
-import subprocess
-from protoBuff import MulticastMessage_pb2 as MulticastMessage
+import struct
+import time
+from protoBuff import MulticastMessage_pb2 as mumes  # Importe a definição de mensagem gerada pelo protobuf
 
-class MulticastSender:
-    def __init__(self, multicast_group, multicast_port, interface_ip):
-        self.multicast_group = multicast_group
-        self.multicast_port = multicast_port
-        self.interface_ip = interface_ip
+# Configurações do multicast
+multicast_group = '224.0.0.1'
+multicast_port = 5000
 
-        self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
-        self.sock.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, socket.inet_aton(multicast_group) + socket.inet_aton(self.interface_ip))
+# Crie um socket UDP para multicast
+multicast_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
 
-    def send_multicast_message(self, sender, content):
-        message = MulticastMessage.MulticastMessage()
-        message.sender = sender
-        message.content = content
+# Configurar o socket para permitir que outros programas usem a mesma porta
+multicast_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
+# Junte-se ao grupo multicast
+multicast_socket.bind(('', multicast_port))
+mreq = struct.pack('4sL', socket.inet_aton(multicast_group), socket.INADDR_ANY)
+multicast_socket.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, mreq)
+
+print(f"Escutando mensagens do grupo {multicast_group}:{multicast_port}")
+s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+s.connect(("8.8.8.8", 80))
+interface_ip =s.getsockname()[0]
+s.close()
+
+
+try:
+    while True:
+        print('foi')
+        message = mumes.MulticastMessage()
+        message.sender = interface_ip
+        message.content = "Este dispositivo está online"
+
+        # Serialize a mensagem protobuf em bytes
         message_bytes = message.SerializeToString()
 
-        self.sock.sendto(message_bytes, (self.multicast_group, self.multicast_port))
+        # Envie a mensagem serializada como um pacote UDP multicast
+        multicast_socket.sendto(message_bytes, (multicast_group, multicast_port))
 
-    def close(self):
-        self.sock.close()
+        # Espere por um curto período antes de enviar novamente (pode ajustar isso conforme necessário)
+        time.sleep(5)
 
-def get_active_interface_ip(interface_name):
-    try:
-        output = subprocess.check_output(["ifconfig", interface_name]).decode("utf-8")
-        lines = output.split("\n")
-        for line in lines:
-            if "inet " in line:
-                parts = line.split()
-                return parts[1]  # O endereço IPv4 está na segunda parte
-    except Exception as e:
-        print(f"Erro ao obter a interface IP: {e}")
-        return None
-
-if __name__ == "__main__":
-    multicast_group = '224.0.0.1'
-    multicast_port = 5000
-    interface_ip = get_active_interface_ip("wifi0")
-
-    sender = MulticastSender(multicast_group, multicast_port, interface_ip)
-    sender.send_multicast_message(interface_ip, 'Esta é uma mensagem de teste do Matheus')
-    sender.close()
+except KeyboardInterrupt:
+    pass
+finally:
+    multicast_socket.close()
