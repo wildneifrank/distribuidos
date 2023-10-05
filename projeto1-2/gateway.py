@@ -1,6 +1,5 @@
 import socket
 import struct
-import time
 from protoBuff import MulticastMessage_pb2 as mumes
 from protoBuff import SensorMessage_pb2 as senmes
 import threading
@@ -47,10 +46,121 @@ def multicast_sender():
         # Espere por um curto período antes de enviar novamente (pode ajustar isso conforme necessário)
             
         multicast_socket.close()
+def obj_comunication(conn):
+    try:
+        data = conn.recv(1024)  # Tamanho máximo da mensagem é 1024 bytes
+        if data:
+            # Parse da mensagem protobuf
+            message = mumes.MulticastMessage()
+            message.ParseFromString(data)
+            sender = message.sender
+            type = message.type
+            print(f"Recebido de {sender}: {type}")
+            #cliente
+            if(type == '0'):
+                print('user')
+            #sensor
+            elif(type == '1'):
+                print('sensor')
+                sensor_thread = threading.Thread(target=sensor_handle, args=(sender, conn,))
+                sensor_thread.start()
 
-def multicast_receiver():
+            #atuador
+            elif(type == '2'):
+                print('atuador')
+            #ar-condicionado
+            elif(type=='3'):
+                print('ar-condicionado')
+        print('chegou')
+    except:
+        print('close')
+        conn.close()
+        obj_sock.remove(conn)
+        
+    
+
+    
+
+############################# tratamentos de objetos #####################################
+
+#Sensor
+def sensor_handle(sender, conn):
+    objetos[sender] = None
+
+    try:
+        while True:
+            data = conn.recv(1024)
+            message = senmes.SensorMessage()
+            message.ParseFromString(data)
+            objetos[sender] = message.valor
+            print(f"Valor é: {objetos}")
+    
+    except:        
+        obj_sock.remove(conn)
+        conn.close()
+        
+    return 0
+
+#Atuador
+# def atuador_handle(sender):
+#     server_ip = '192.168.1.245'
+#     server_port = 6000
+#     # Crie um socket TCP
+#     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+#     # Vincular o socket ao endereço e porta do servidor
+#     sock.bind((server_ip, server_port))
+
+#     # Espere por conexões de clientes
+#     sock.listen(1)
+
+#     print(f"Servidor TCP escutando em {server_ip}:{server_port}")
+#     objetos[sender] = None
+
+#     while True:
+#         conn, addr = sock.accept()
+#         data = senmes.SensorMessage()
+#         data.ParseFromString(conn.recv(1024))
+#         objetos[sender] = data.valor
+#         print(f"Conexão estabelecida com {objetos}")
+        
+#     return 0
+
+#Ar-condicionado
+# def ac_handle(sender):
+#     server_ip = '192.168.1.245'
+#     server_port = 6000
+#     # Crie um socket TCP
+#     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+#     # Vincular o socket ao endereço e porta do servidor
+#     sock.bind((server_ip, server_port))
+
+#     # Espere por conexões de clientes
+#     sock.listen(1)
+
+#     print(f"Servidor TCP escutando em {server_ip}:{server_port}")
+#     objetos[sender] = None
+
+#     while True:
+#         conn, addr = sock.accept()
+#         data = senmes.SensorMessage()
+#         data.ParseFromString(conn.recv(1024))
+#         objetos[sender] = data.valor
+#         print(f"Conexão estabelecida com {objetos}")
+        
+#     return 0
+
+
+
+if __name__ == "__main__":
+    # Crie uma thread para executar a função multicast_sender
+    multicast_sender()
+
+    objetos = {}
+    obj_sock = []
     server_ip = '192.168.1.245'
-    server_port = 6000
+    server_port = 8002
     # Crie um socket TCP
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
@@ -60,87 +170,19 @@ def multicast_receiver():
     # Espere por conexões de clientes
     sock.listen(5)
 
-    print(f"Servidor TCP escutando em {server_ip}:{server_port}")
+    
 
-    while True:
+    while(True):
         conn, addr = sock.accept()
-        print(f"Conexão estabelecida com {addr}")
+        print(f"Escutando mensagens de {addr}")
 
-        data = conn.recv(1024)  # Tamanho máximo da mensagem é 1024 bytes
-        if data:
-            # Parse da mensagem protobuf
-            message = mumes.MulticastMessage()
-            message.ParseFromString(data)
-
-            sender = message.sender
-            type = message.type
-            print(f"Recebido de {sender}: {type}")
-            #sensor
-            if(type == '0'):
-                print('sensor')
-                sensor_thread = threading.Thread(target=sensor_handle(sender))
-                sensor_thread.start()
-                sensor_thread.join()
-
-            #atuador
-            elif(type == '1'):
-                print('atuador')
-            #ar-condicionado
-            elif(type=='2'):
-                print('ar-condicionado')
+        obj_sock.append(conn)
 
 
-        conn.close()
+        obj_thread = threading.Thread(target=obj_comunication, args=(conn,))
 
-############################# tratamentos de objetos #####################################
-
-#Sensor
-def sensor_handle(sender):
-    server_ip = '192.168.1.245'
-    server_port = 6001
-    # Crie um socket TCP
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-    # Vincular o socket ao endereço e porta do servidor
-    sock.bind((server_ip, server_port))
-
-    # Espere por conexões de clientes
-    sock.listen(1)
-
-    print(f"Servidor TCP escutando em {server_ip}:{server_port}")
-
-    while True:
-        conn, addr = sock.accept()
-        data = senmes.SensorMessage()
-        data.ParseFromString(conn.recv(1024))
-        
-        print(f"Conexão estabelecida com {data.valor}")
-    return 0
-
-#Atuador
-def atuador_handle(sender):
-
-    return 0
-
-#Ar-condicionado
-def ac_handle(sender):
-
-    return 0
-
-
-
-if __name__ == "__main__":
-    # Crie uma thread para executar a função multicast_sender
-    multicast_sender()
-
-    objetos = []
-
-    multicast_thread_receiver = threading.Thread(target=multicast_receiver)
-
-    # Inicie a thread
-    multicast_thread_receiver.start()
-
-    # Aguarde a thread terminar (você pode remover esta linha se desejar que o programa principal termine imediatamente)
-    multicast_thread_receiver.join()
+        # Inicie a thread
+        obj_thread.start()
+        print('foi')
 
     
