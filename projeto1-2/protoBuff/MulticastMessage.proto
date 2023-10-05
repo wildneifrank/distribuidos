@@ -2,5 +2,5 @@ syntax = "proto3";
 
 message MulticastMessage {
     string sender = 1;
-    string content = 2;
+    string type = 2;
 }
