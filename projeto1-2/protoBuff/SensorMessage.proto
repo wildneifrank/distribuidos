@@ -1,0 +1,5 @@
+syntax = "proto3";
+
+message SensorMessage {
+    sint32 valor = 1;
+}

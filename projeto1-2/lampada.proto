@@ -5,16 +5,5 @@ message LampadaStatus {
 }
 
 message LampadaControl {
-    bool ligar = 1;
-    bool desligar = 2;
-}
-
-message LampadaResponse {
-    bool sucesso = 1;
-    string mensagem = 2;
-}
-
-service LampadaService {
-    rpc GetStatus(LampadaStatus) returns (LampadaStatus);
-    rpc Control(LampadaControl) returns (LampadaResponse);
+    bool control = 1;
 }
