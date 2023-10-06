@@ -7,3 +7,9 @@ message LampadaStatus {
 message LampadaControl {
     bool control = 1;
 }
+
+message Lampada {
+    string IP = 1;
+    string tipo = 2;
+    bool status = 3;
+}

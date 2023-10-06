@@ -1,29 +1,51 @@
-import grpc
-from concurrent import futures
-from lampada import Lampada
+import socket
 import lampada_pb2
-import lampada_pb2_grpc
 
-class LampadaService(lampada_pb2_grpc.LampadaServiceServicer):
-    def __init__(self):
-        self.lampada = Lampada()
+def handle_lampada_connection(client_socket, lampada):
+    try:
+        while True:
+            data = client_socket.recv(1024)
+            if not data:
+                break
 
-    def GetStatus(self, request, context):
-        return self.lampada.get_status()
+            # Interpretar a mensagem recebida do cliente
+            control_msg = lampada_pb2.LampadaControl()
+            control_msg.ParseFromString(data)
 
-    def Control(self, request, context):
-        if request.ligar:
-            self.lampada.ligar()
-        elif request.desligar:
-            self.lampada.desligar()
-        return self.lampada.get_status()
+            # Lidar com o comando do cliente
+            if control_msg.control:
+                lampada.ligar()
+            else:
+                lampada.desligar()
 
-def serve():
-    server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
-    lampada_pb2_grpc.add_LampadaServiceServicer_to_server(LampadaService(), server)
-    server.add_insecure_port('[::]:50051')
-    server.start()
-    server.wait_for_termination()
+            # Responder com o status atual da lâmpada
+            status_msg = lampada.get_status().SerializeToString()
+            client_socket.sendall(status_msg)
+    except Exception as e:
+        print(f"Erro na conexão com a lâmpada: {e}")
+    finally:
+        client_socket.close()
 
-if __name__ == '__main__':
-    serve()
+def main():
+    # Defina o IP e a porta do gateway
+    gateway_ip = "127.0.0.1"  # Substitua pelo IP do gateway
+    gateway_port = 8080  # Substitua pela porta do gateway
+
+    # Crie uma instância da lâmpada para controle
+    lampada = lampada_pb2.Lampada()
+
+    # Inicie o servidor do gateway
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server_socket:
+        server_socket.bind((gateway_ip, gateway_port))
+        server_socket.listen(5)
+        print(f"Gateway escutando em {gateway_ip}:{gateway_port}")
+
+        while True:
+            client_socket, _ = server_socket.accept()
+            print(f"Conexão estabelecida com um cliente")
+            
+            # Manipule a conexão da lâmpada em uma thread ou processo separado
+            handle_lampada_connection(client_socket, lampada)
+
+if __name__ == "__main__":
+    main()

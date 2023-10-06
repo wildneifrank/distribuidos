@@ -1,27 +1,41 @@
-import grpc
-import lampada_pb2
-import lampada_pb2_grpc
+import socket
 
-def main():
-    # Conecte-se ao servidor gRPC
-    channel = grpc.insecure_channel('localhost:50051')
-    stub = lampada_pb2_grpc.LampadaServiceStub(channel)
+def solicitar_status():
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.connect(("127.0.0.1", 8080))
+        s.sendall(b"SolicitarStatus")
+        resposta = s.recv(1024)
+        print(f"Status da lâmpada: {resposta.decode('utf-8')}")
 
-    # Obtenha o status inicial da lâmpada
-    status = stub.GetStatus(lampada_pb2.LampadaStatus())
-    print(f'Status inicial da lâmpada: {"Ligada" if status.ligada else "Desligada"}')
+def ligar_lampada():
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.connect(("127.0.0.1", 8080))
+        s.sendall(b"Ligar")
+        print("Ligando a lâmpada...")
 
-    # Ligue a lâmpada
-    print(f'Cliente apertou em Ligar')
-    stub.Control(lampada_pb2.LampadaControl(ligar=True))
-    status = stub.GetStatus(lampada_pb2.LampadaStatus())
-    print(f'Estado da Lâmpada: {"Ligada" if status.ligada else "Desligada"}')
+def desligar_lampada():
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.connect(("127.0.0.1", 8080))
+        s.sendall(b"Desligar")
+        print("Desligando a lâmpada...")
 
-    # Desligue a lâmpada
-    print(f'Cliente apertou em Desligar')
-    stub.Control(lampada_pb2.LampadaControl(desligar=True))
-    status = stub.GetStatus(lampada_pb2.LampadaStatus())
-    print(f'Estado da Lâmpada: {"Ligada" if status.ligada else "Desligada"}')
+if __name__ == "__main__":
+    while True:
+        print("Opções:")
+        print("1. Solicitar status da lâmpada")
+        print("2. Ligar a lâmpada")
+        print("3. Desligar a lâmpada")
+        print("4. Sair")
+        
+        escolha = input("Escolha uma opção (1/2/3/4): ")
 
-if __name__ == '__main__':
-    main()
+        if escolha == "1":
+            solicitar_status()
+        elif escolha == "2":
+            ligar_lampada()
+        elif escolha == "3":
+            desligar_lampada()
+        elif escolha == "4":
+            break
+        else:
+            print("Opção inválida. Por favor, escolha uma opção válida.")
