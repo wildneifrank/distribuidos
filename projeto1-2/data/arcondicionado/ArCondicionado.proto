@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+message ArCondicionado {
+    optional int32 type = 1;
+    optional string ip = 2;
+    optional string port = 3;
+    optional bool state = 4;
+    optional int32 temp = 5;
+}
