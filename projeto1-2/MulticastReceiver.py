@@ -25,7 +25,7 @@ class MulticastReceiver:
             message = MulticastMessage.MulticastMessage()
             message.ParseFromString(data)
 
-            print(f"De: {message.sender}\nMensagem: {message.content}\n")
+            print(f"De: {message.sender}\nMensagem: {message.type}\n")
 
             return message.sender
 

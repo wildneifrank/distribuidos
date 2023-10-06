@@ -2,12 +2,12 @@ import socket
 import struct
 from protoBuff import MulticastMessage_pb2 as mumes
 from protoBuff import SensorMessage_pb2 as senmes
-import threading
 import MulticastReceiver as mrcv
+import threading
 
 def multicast_sender():
     # Configurações do multicast
-    multicast_group = '224.0.0.153'
+    multicast_group = '224.0.0.1'
     multicast_port = 5000
 
     # Crie um socket UDP para multicast
@@ -38,6 +38,7 @@ def multicast_sender():
 
             # Envie a mensagem serializada como um pacote UDP multicast
         multicast_socket.sendto(message_bytes, (multicast_group, multicast_port))
+        print('mandou')
 
         
     except KeyboardInterrupt:
@@ -159,11 +160,12 @@ def sensor_handle(sender, conn):
 
 if __name__ == "__main__":
     # Crie uma thread para executar a função multicast_sender
-    #multicast_sender()
+    multicast_sender()
 
     objetos = {}
     obj_sock = []
-    server_ip = '127.0.0.1'
+    server_ip = mrcv.get_active_interface_ip('wifi0')
+    print(server_ip)
     server_port = 8002
     # Crie um socket TCP
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
