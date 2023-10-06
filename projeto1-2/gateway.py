@@ -1,9 +1,11 @@
 import socket
 import struct
+import time
 from protoBuff import MulticastMessage_pb2 as mumes
 from protoBuff import SensorMessage_pb2 as senmes
 import MulticastReceiver as mrcv
 import threading
+import User as usr
 
 def multicast_sender():
     # Configurações do multicast
@@ -38,7 +40,6 @@ def multicast_sender():
 
             # Envie a mensagem serializada como um pacote UDP multicast
         multicast_socket.sendto(message_bytes, (multicast_group, multicast_port))
-        print('mandou')
 
         
     except KeyboardInterrupt:
@@ -47,7 +48,7 @@ def multicast_sender():
         # Espere por um curto período antes de enviar novamente (pode ajustar isso conforme necessário)
             
         multicast_socket.close()
-def obj_comunication(conn):
+def obj_comunication(conn,addr):
     try:
         data = conn.recv(1024)  # Tamanho máximo da mensagem é 1024 bytes
         if data:
@@ -63,8 +64,7 @@ def obj_comunication(conn):
             #sensor
             elif(type == '1'):
                 print('sensor')
-                sensor_thread = threading.Thread(target=sensor_handle, args=(sender, conn,))
-                sensor_thread.start()
+                sensor_handle(sender, conn, addr)
 
             #atuador
             elif(type == '2'):
@@ -76,7 +76,7 @@ def obj_comunication(conn):
     except:
         print('close')
         conn.close()
-        obj_sock.remove(conn)
+        obj_sock.remove((conn,addr))
         
     
 
@@ -85,7 +85,7 @@ def obj_comunication(conn):
 ############################# tratamentos de objetos #####################################
 
 #Sensor
-def sensor_handle(sender, conn):
+def sensor_handle(sender, conn, addr):
     objetos[sender] = None
 
     try:
@@ -93,15 +93,15 @@ def sensor_handle(sender, conn):
             data = conn.recv(1024)
             message = senmes.SensorMessage()
             message.ParseFromString(data)
-            objetos[sender] = message.valor
+            usr.senTemp.temperatura = message.valor
             if(message.valor == ''):
                 obj_sock.remove(conn)
                 conn.close()
                 break
-            print(f"Valor é: {objetos}")
+            print(f"Valor é: {usr.senTemp.temperatura}")
     
     except:        
-        obj_sock.remove(conn)
+        obj_sock.remove((conn,addr))
         conn.close()
         
     return 0
@@ -157,9 +157,9 @@ def sensor_handle(sender, conn):
 #     return 0
 
 
-
 if __name__ == "__main__":
     # Crie uma thread para executar a função multicast_sender
+
     multicast_sender()
 
     objetos = {}
@@ -176,19 +176,19 @@ if __name__ == "__main__":
     # Espere por conexões de clientes
     sock.listen(5)
 
-    
+    client_thread = threading.Thread(target=usr.init_client)
+    client_thread.start()
 
     while(True):
         conn, addr = sock.accept()
         print(f"Escutando mensagens de {addr}")
 
-        obj_sock.append(conn)
+        obj_sock.append((conn,addr))
 
 
-        obj_thread = threading.Thread(target=obj_comunication, args=(conn,))
-
-        # Inicie a thread
+        obj_thread = threading.Thread(target=obj_comunication, args=(conn,addr))
         obj_thread.start()
+        # Inicie a thread
         print('foi')
 
     
