@@ -1,9 +1,13 @@
 import socket
+import lampada_pb2
 
 def solicitar_status():
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.connect(("127.0.0.1", 8080))
-        s.sendall(b"SolicitarStatus")
+        control_msg = lampada_pb2.LampadaControl()
+        control_msg.control = "1"
+        msg = control_msg.SerializeToString()
+        s.sendall(msg)
         resposta = s.recv(1024)
         print(f"Status da lâmpada: {resposta.decode('utf-8')}")
 

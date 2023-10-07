@@ -1,5 +1,6 @@
 import lampada_pb2
 import socket
+import MulticastReceiver as mrcv
 
 class Lampada:
     def __init__(self, IP, tipo):
@@ -16,7 +17,7 @@ class Lampada:
         print("Lâmpada desligada.")
 
     def get_status(self):
-        return lampada_pb2.LampadaStatus(ligada=self.status)
+        return self.status
 
 def main():
     
@@ -37,7 +38,7 @@ def main():
             while True:
                 ## Aguardar uma mensagem do gateway
                 data = s.recv(1024)
-
+                print("Recebeu comando do servidor")
                 if not data:
                     break  
 
@@ -46,17 +47,35 @@ def main():
                 control_msg.ParseFromString(data)
 
                 
-                if control_msg.control:
+                if control_msg == "1":
+                    print("Pegar Status")
+                    lampada.get_status()
+                elif control_msg == "2":
                     lampada.ligar()
-                else:
+                elif control_msg == "3":
                     lampada.desligar()
 
-                
-                status_msg = lampada.get_status().SerializeToString()
+                lstatus = lampada_pb2.Lampada()
+                lstatus.status = lampada.get_status()
+                print(type(lampada.get_status()))
+                status_msg = lstatus.SerializeToString()
                 s.sendall(status_msg)
+                print("Status enviado")
 
     except Exception as e:
         print(f"Erro ao conectar ao gateway: {e}")
 
+
 if __name__ == "__main__":
+    
+    multicast_group = '224.0.0.1'
+    multicast_port = 5000
+    interface_ip = mrcv.get_active_interface_ip("wifi0")
+
+
+    receiver = mrcv.MulticastReceiver(multicast_group, multicast_port, interface_ip)
+    sender_ip = receiver.receive_multicast_messages()
+
+    # Para fechar os sockets quando terminar, você pode chamar os métodos 'close':
+    receiver.close()
     main()
