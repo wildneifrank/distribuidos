@@ -13,7 +13,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\rlampada.proto\"!\n\x0eLampadaControl\x12\x0f\n\x07\x63ontrol\x18\x01 \x01(\t\"C\n\x07Lampada\x12\n\n\x02IP\x18\x01 \x01(\t\x12\x0c\n\x04tipo\x18\x02 \x01(\t\x12\x0e\n\x06status\x18\x03 \x01(\x08\x12\x0e\n\x06ligada\x18\x04 \x01(\x08\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\rlampada.proto\"!\n\x0eLampadaControl\x12\x0f\n\x07\x63ontrol\x18\x01 \x01(\t\"\x19\n\x07Lampada\x12\x0e\n\x06status\x18\x01 \x01(\x08\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -23,5 +23,5 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _globals['_LAMPADACONTROL']._serialized_start=17
   _globals['_LAMPADACONTROL']._serialized_end=50
   _globals['_LAMPADA']._serialized_start=52
-  _globals['_LAMPADA']._serialized_end=119
+  _globals['_LAMPADA']._serialized_end=77
 # @@protoc_insertion_point(module_scope)

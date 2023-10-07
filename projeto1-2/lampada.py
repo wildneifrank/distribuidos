@@ -35,7 +35,7 @@ def main():
             s.connect((gateway_ip, gateway_port))
 
             while True:
-                ## Aguarde uma mensagem do gateway
+                ## Aguardar uma mensagem do gateway
                 data = s.recv(1024)
 
                 if not data:

@@ -5,8 +5,5 @@ message LampadaControl {
 }
 
 message Lampada {
-    string IP = 1;
-    string tipo = 2;
-    bool status = 3;
-    bool ligada = 4;
+    bool status = 1;
 }
