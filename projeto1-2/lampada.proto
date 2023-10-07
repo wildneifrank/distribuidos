@@ -8,5 +8,5 @@ message Lampada {
     string IP = 1;
     string tipo = 2;
     bool status = 3;
-    bool ligada = 1;
+    bool ligada = 4;
 }
