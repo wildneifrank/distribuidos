@@ -1,32 +1,32 @@
-import lampada_pb2
+import sensor_pb2
 import socket
+import sys
+sys.path.append('../../')
 import MulticastReceiver as mrcv
 
-class Lampada:
+class Sensor:
     def __init__(self, IP, tipo):
         self.status = False
         self.IP = IP
         self.tipo = tipo
 
-    def ligar(self):
-        self.status = True
-        print("Lâmpada ligada.")
+    # def ligar(self):
+    #     self.status = True
+    #     print("Lâmpada ligada.")
 
-    def desligar(self):
-        self.status = False
-        print("Lâmpada desligada.")
+    # def desligar(self):
+    #     self.status = False
+    #     print("Lâmpada desligada.")
 
-    def get_status(self):
-        return self.status
+    # def get_status(self):
+    #     return self.status
 
 def main():
     
-    lampada_ip = "127.0.0.1"  
-    lampada_tipo = "lampada"
+    sensor_ip = "127.0.0.1"  
+    sensor_tipo = "sensor"
 
-    
-    lampada = Lampada(lampada_ip, lampada_tipo)
-
+    sensor = Sensor(sensor_ip, sensor_tipo)
     
     gateway_ip = "127.0.0.1"  
     gateway_port = 8080  
@@ -35,32 +35,37 @@ def main():
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             s.connect((gateway_ip, gateway_port))
 
-            while True:
-                ## Aguardar uma mensagem do gateway
-                data = s.recv(1024)
-                print("Recebeu comando do servidor")
-                if not data:
-                    break  
+            sensorInfo = sensor_pb2.SensorControl()
+            sensorInfo_msg = sensorInfo.SerializeToString()
+            s.sendall(sensorInfo_msg)
+            print("Infomarções enviadas")
 
-                ## Interpretar a mensagem do gateway
-                control_msg = lampada_pb2.LampadaControl()
-                control_msg.ParseFromString(data)
+            # while True:
+            #     ## Aguardar uma mensagem do gateway
+            #     data = s.recv(1024)
+            #     print("Recebeu comando do servidor")
+            #     if not data:
+            #         break  
+
+            #     ## Interpretar a mensagem do gateway
+            #     control_msg = sensor_pb2.SensorControl()
+            #     control_msg.ParseFromString(data)
 
                 
-                if control_msg == "1":
-                    print("Pegar Status")
-                    lampada.get_status()
-                elif control_msg == "2":
-                    lampada.ligar()
-                elif control_msg == "3":
-                    lampada.desligar()
+            #     if control_msg == "1":
+            #         print("Pegar Status")
+            #         lampada.get_status()
+            #     elif control_msg == "2":
+            #         lampada.ligar()
+            #     elif control_msg == "3":
+            #         lampada.desligar()
 
-                lstatus = lampada_pb2.Lampada()
-                lstatus.status = lampada.get_status()
-                print(type(lampada.get_status()))
-                status_msg = lstatus.SerializeToString()
-                s.sendall(status_msg)
-                print("Status enviado")
+            #     lstatus = sensor_pb2.Lampada()
+            #     lstatus.status = lampada.get_status()
+            #     print(type(lampada.get_status()))
+            #     status_msg = lstatus.SerializeToString()
+            #     s.sendall(status_msg)
+            #     print("Status enviado")
 
     except Exception as e:
         print(f"Erro ao conectar ao gateway: {e}")
