@@ -1,15 +1,12 @@
 syntax = "proto3";
 
-message LampadaStatus {
-    bool ligada = 1;
-}
-
 message LampadaControl {
-    bool control = 1;
+    string control = 1;
 }
 
 message Lampada {
     string IP = 1;
     string tipo = 2;
     bool status = 3;
+    bool ligada = 1;
 }
