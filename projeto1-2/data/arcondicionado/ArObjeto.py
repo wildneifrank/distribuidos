@@ -1,60 +1,91 @@
-#import ArCondicionado_pb2
+import ArCondicionado_pb2 #import do protoc aqui
+import MulticastReceiver as mrcv
+import socket
+
+"""Mudar os print() pra message ou seila como vai ser a troca de string"""
 
 class ArCondicionadoController:
     def __init__(self):
-        #self.ar_condicionado = ArCondicionado_pb2.ArCondicionado()
-        self.ar_condicionado = {
-            "ligado": False, 
-            "temperatura": 20 
-        }
+        self.ar_condicionado = ArCondicionado_pb2.attributes()
+        self.ar_condicionado.state = False;
+        self.ar_condicionado.temp = 20;
 
     def ligar(self):
-        self.ar_condicionado["ligado"] = True
+        if self.ar_condicionado.state:
+             print(f"Ar Condicionado já está ligado.")
+        else:
+            self.ar_condicionado.state = True
+            print(f"Ar Condicionado agora está ligado.")
 
     def desligar(self):
-        self.ar_condicionado["ligado"] = False
+        if self.ar_condicionado.state:
+             self.ar_condicionado.state = False
+             print("Ar Condicionado agora está em standby.")
+        else:
+            print(f"Ar Condicionado já está em standby.")
 
     def aumentar_temperatura(self):
-        if self.ar_condicionado["ligado"] and self.ar_condicionado["temperatura"] < 27:
-            self.ar_condicionado["temperatura"] += 1
-        elif self.ar_condicionado["temperatura"] >= 27:
-            print("\nMáximo atingido.")
+        if self.ar_condicionado.state and self.ar_condicionado.temp < 27:
+            self.ar_condicionado.temp += 1
+            print(f"Temperatura aumentada para {self.ar_condicionado.temp}ºC")
+        elif self.ar_condicionado.temp >= 27:
+            print(f"Temperatura está no máximo de {self.ar_condicionado.temp}ºC")
         else:
-            print("\nDesligado\n")
+            print("Ar Condicionado está desligado. Não é possível aumentar a temperatura.")
 
     def diminuir_temperatura(self):
-        if self.ar_condicionado["ligado"] and self.ar_condicionado["temperatura"] > 16:
-            self.ar_condicionado["temperatura"] -= 1
-        elif self.ar_condicionado["temperatura"] <= 16:
-            print("\nMínimo atingido.")
+        if self.ar_condicionado.state and self.ar_condicionado.temp > 16:
+            self.ar_condicionado.temp -= 1
+            print(f"Temperatura diminuida para {self.ar_condicionado.temp}ºC")
+        elif self.ar_condicionado.temp <= 16:
+            print(f"Temperatura está no mínimo de {self.ar_condicionado.temp}ºC")
         else:
-            print("O ar condicionado está desligado. Não é possível diminuir a temperatura.")
+            print("O Ar Condicionado está desligado. Não é possível diminuir a temperatura.")
 
     def mostrar_estado(self):
-        if self.ar_condicionado["ligado"]:
-            estado = "ligado"
-            print(f"\nTemperatura: {self.ar_condicionado['temperatura']} graus Celsius\n")
+        if self.ar_condicionado.state:
+            print(f"\nTemperatura: {self.ar_condicionado.temp} graus Celsius\n")
+            print(f"coisa serializada: {self.ar_condicionado.SerializeToString()}")
         else:
             print("\nDesligado\n")    
 
-
 controller = ArCondicionadoController()
 
-while True:
-    comando = input("Digite: \n'ligar' para ligar \n 'desligar' para desligar \n '+' para aumentar a temperatura \n '-' para diminuir a temperatura \n 'sair' para sair: \n ")
+""" multicast_group = '224.0.0.1'
+multicast_port = 5000
+interface_ip = mrcv.get_active_interface_ip("Ethernet Ethernet")
+interface_ip = '127.0.0.1'
 
-    if comando == "ligar":
+print(f'{multicast_group} - {multicast_port} - {interface_ip}')
+receiver = mrcv.MulticastReceiver(multicast_group, multicast_port, interface_ip)
+sender_ip = receiver.receive_multicast_messages()
+
+    # Para fechar os sockets quando terminar, você pode chamar os métodos 'close':
+receiver.close() """
+
+"""Lança o MultiCast pra dizer q ta ligado aqui <<"""
+
+HOST = "127.0.0.1"
+PORT = 8922
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+s.connect((HOST, PORT))
+while True:
+    msg = s.recv(1024).decode('utf-8')
+    if msg == 'exit':
+        break
+    if msg == "ligar":
         controller.ligar()
-    elif comando == "desligar":
+    elif msg == "desligar":
         controller.desligar()
-    elif comando == "+":
+    elif msg == "+":
         controller.aumentar_temperatura()
-    elif comando == "-":
+    elif msg == "-":
         controller.diminuir_temperatura()
-    elif comando == "sair":
+    elif msg == "sair":
         break
     else:
         print("Não foi possível realizar a ação")
         continue
-
-    controller.mostrar_estado()
+    s.sendall(controller.ar_condicionado.SerializeToString())
+s.close()
+exit()
