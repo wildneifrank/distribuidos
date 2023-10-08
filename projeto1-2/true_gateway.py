@@ -149,6 +149,30 @@ def ac_handle(acao):
         print(f'Não existe um ar condicionado conectado.')
 
     
+def sensorRcv():
+    # Configurações do servidor udp
+    host = '127.0.0.1'  # Endereço IP do servidor
+    porta = 12345       # Porta do servidor
+
+    # Crie um socket UDP
+    servidor_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
+    # Vincule o socket ao endereço e à porta do servidor
+    servidor_socket.bind((host, porta))
+
+    print(f"Servidor UDP está ouvindo em {host}:{porta}")
+
+    while True:
+        # Receba uma mensagem do cliente e o endereço do cliente
+        mensagem, endereco_cliente = servidor_socket.recvfrom(1024)
+
+        print(f"Recebido de {endereco_cliente}: {mensagem.decode('utf-8')}")
+
+        # Faça o processamento da mensagem, se necessário
+
+        # Envie uma resposta (opcional)
+        resposta = 'Mensagem recebida com sucesso!'
+        servidor_socket.sendto(resposta.encode('utf-8'), endereco_cliente)
 
 
 
