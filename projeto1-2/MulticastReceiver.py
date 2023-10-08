@@ -24,7 +24,7 @@ class MulticastReceiver:
             message = MulticastMessage.MulticastMessage()
             message.ParseFromString(data)
 
-            print(f"De: {message.sender}\nMensagem: {message.content}\n")
+            print(f"De: {message.sender}\nMensagem: {message.type}\n")
 
             return message.sender
 
@@ -48,8 +48,11 @@ if __name__ == "__main__":
     multicast_port = 5000
     interface_ip = get_active_interface_ip("eno1")
 
-    receiver = MulticastReceiver(multicast_group, multicast_port, interface_ip)
-    sender_ip = receiver.receive_multicast_messages()
+    while(True):
+        receiver = MulticastReceiver(multicast_group, multicast_port, interface_ip)
+        sender_ip = receiver.receive_multicast_messages()
 
     # Para fechar os sockets quando terminar, você pode chamar os métodos 'close':
     receiver.close()
+
+        
