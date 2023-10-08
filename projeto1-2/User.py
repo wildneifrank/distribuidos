@@ -14,9 +14,9 @@ import gateway as gtw
 senTemp = SensorTemp()
 arcon = ArCon()
 lamp = Lampada()
-acao = None
 
-def init_client():
+
+def init_client(acao):
     print('Bem vindo ao Alexo Rabbit')
     
     while(True):
@@ -27,7 +27,6 @@ def init_client():
         if acao == '1':
             print('A tempeatura do sensor é:', senTemp.temperatura)
         elif acao == '2':
-            gtw.obj_thread
             print('O status da lampada é', lamp.status)
         elif acao == '3':
             print('')
