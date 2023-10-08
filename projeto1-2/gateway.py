@@ -3,9 +3,12 @@ import struct
 import time
 from protoBuff import MulticastMessage_pb2 as mumes
 from protoBuff import SensorMessage_pb2 as senmes
+from protoBuff import ArCondicionado_pb2 as armes
 import MulticastReceiver as mrcv
 import threading
 import User as usr
+
+lpTh = False
 
 def multicast_sender():
     # Configurações do multicast
@@ -86,8 +89,6 @@ def obj_comunication(conn,addr):
 
 #Sensor
 def sensor_handle(sender, conn, addr):
-    objetos[sender] = None
-
     try:
         while True:
             data = conn.recv(1024)
@@ -98,7 +99,6 @@ def sensor_handle(sender, conn, addr):
                 obj_sock.remove(conn)
                 conn.close()
                 break
-            print(f"Valor é: {usr.senTemp.temperatura}")
     
     except:        
         obj_sock.remove((conn,addr))
@@ -106,30 +106,25 @@ def sensor_handle(sender, conn, addr):
         
     return 0
 
-#Atuador
-# def atuador_handle(sender):
-#     server_ip = '192.168.1.245'
-#     server_port = 6000
-#     # Crie um socket TCP
-#     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+#ALampada
+def lamp_handle(sender, conn, addr):
+    while True:
+        msg = armes.ArCondicionado()
+        while usr.acao != '2':
+            pass
 
-#     # Vincular o socket ao endereço e porta do servidor
-#     sock.bind((server_ip, server_port))
+        msg.type = 1
+        msg.state = True
+        msg.temp = 25
 
-#     # Espere por conexões de clientes
-#     sock.listen(1)
+        # Codifique a mensagem em bytes
+        msg_bytes = armes.SerializeToString()
+        conn.sendall(msg_bytes)
+        sla = 0
+        sla.ParseFromString(conn.recv(1024))
+        print(f"Conexão estabelecida com {msg_bytes}")
 
-#     print(f"Servidor TCP escutando em {server_ip}:{server_port}")
-#     objetos[sender] = None
-
-#     while True:
-#         conn, addr = sock.accept()
-#         data = senmes.SensorMessage()
-#         data.ParseFromString(conn.recv(1024))
-#         objetos[sender] = data.valor
-#         print(f"Conexão estabelecida com {objetos}")
-        
-#     return 0
+    return 0
 
 #Ar-condicionado
 # def ac_handle(sender):
@@ -182,9 +177,8 @@ if __name__ == "__main__":
     while(True):
         conn, addr = sock.accept()
         print(f"Escutando mensagens de {addr}")
-
         obj_sock.append((conn,addr))
-
+        
 
         obj_thread = threading.Thread(target=obj_comunication, args=(conn,addr))
         obj_thread.start()

@@ -7,26 +7,28 @@ class ArCon:
         self.status = 'Desligado'
 class Lampada:
     def __init__(self):
-        self.temperatura = None
         self.status = 'Desligado'
+import gateway as gtw
 
 
 senTemp = SensorTemp()
 arcon = ArCon()
 lamp = Lampada()
-
+acao = None
 
 def init_client():
     print('Bem vindo ao Alexo Rabbit')
-    print('Lista de ações:')
-    for i in range(len(acoes)):
-        print(i+1, '-', acoes[i])
+    
     while(True):
+        print('Lista de ações:')
+        for i in range(len(acoes)):
+            print(i+1, '-', acoes[i])
         acao = input('Digite o número da ação que deseja tomar?\n')
         if acao == '1':
             print('A tempeatura do sensor é:', senTemp.temperatura)
         elif acao == '2':
-            print('O status da lampada é')
+            gtw.obj_thread
+            print('O status da lampada é', lamp.status)
         elif acao == '3':
             print('')
         elif acao == '4':
