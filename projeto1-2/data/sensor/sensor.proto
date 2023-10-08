@@ -7,3 +7,7 @@ message Sensor {
     optional bool state = 4;
     optional float temperature = 5;
 }
+
+message SensorMsg {
+    optional string operation = 1;
+}

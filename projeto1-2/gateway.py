@@ -164,7 +164,7 @@ if __name__ == "__main__":
 
     objetos = {}
     obj_sock = []
-    server_ip = mrcv.get_active_interface_ip('wifi0')
+    server_ip = mrcv.get_active_interface_ip('eth0')
     print(server_ip)
     server_port = 8002
     # Crie um socket TCP
