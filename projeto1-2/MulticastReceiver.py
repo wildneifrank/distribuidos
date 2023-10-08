@@ -28,7 +28,7 @@ class MulticastReceiver:
 
             print(f"De: {message.ip}\nMensagem: {message.type}\n")
 
-            return message.ip, message.port, message.type
+            return message.ip, message.port, message.type, message.udpport
 
     def close(self):
         self.sock.close()
@@ -51,9 +51,9 @@ def multicast_receiver():
 
 
     receiver = MulticastReceiver(multicast_group, multicast_port, interface_ip)
-    ip, port, type = receiver.receive_multicast_messages()
+    ip, port, type, udpport = receiver.receive_multicast_messages()
 
-    return (ip, port, type)
+    return (ip, port, type, udpport)
 
         # Para fechar os sockets quando terminar, você pode chamar os métodos 'close':
     receiver.close()

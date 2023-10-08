@@ -4,4 +4,5 @@ message MulticastMessage {
     string ip = 1;
     string type = 2;
     int32 port = 3;
+    optional int32 udpport = 4;
 }

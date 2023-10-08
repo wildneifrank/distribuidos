@@ -29,6 +29,7 @@ def multicast_sender(type):
         message = mumes.MulticastMessage()
         message.ip = interface_ip
         message.port = 8002
+        message.udpport = 5000
         message.type = type
 
         # Serialize a mensagem protobuf em bytes

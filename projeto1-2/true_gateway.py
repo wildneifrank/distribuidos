@@ -150,9 +150,9 @@ def ac_handle(acao):
         print(f'Não existe um ar condicionado conectado.')
 
     
-def sensorRcv():
+def sensor_rcv():
     # Configurações do servidor udp
-    host = '127.0.0.1'  # Endereço IP do servidor
+    host = mrcv.get_active_interface_ip('wifi0')# Endereço IP do servidor
     porta = 5000       # Porta do servidor
 
     # Crie um socket UDP
@@ -170,12 +170,29 @@ def sensorRcv():
         # Dados que você deseja salvar
         sensor_msg = semes.Sensor()
         sensor_msg.ParseFromString(mensagem)
+        print(sensor_msg.temperature)
         # Nome do arquivo de texto
         nome_arquivo = "temperatura.txt"
 
         # Abrir o arquivo em modo de escrita
         with open(nome_arquivo, "w") as arquivo:
-            arquivo.write(sensor_msg)
+            arquivo.write(str(sensor_msg.temperature))
+
+def sensor_handle(acao):
+    # Nome do arquivo de texto
+    nome_arquivo = "Temperatura.txt"
+
+    # Lista para armazenar os dados lidos do arquivo
+    dados_lidos = 0
+
+    # Abrir o arquivo em modo de leitura
+    with open(nome_arquivo, "r") as arquivo:
+            for linha in arquivo:
+            # Remova a quebra de linha (\n) no final de cada linha e adicione à lista
+                dados_lidos = linha.strip()
+
+    # Exiba os dados lidos
+    print('Temperatura é: ',dados_lidos)
 
 
 
@@ -199,7 +216,7 @@ if __name__ == "__main__":
     mrcv_thread = threading.Thread(target=multiRcv)
     #mrcv_thread.start()
 
-    udp_thread = threading.Thread(target=sensorRcv)
+    udp_thread = threading.Thread(target=sensor_rcv)
     udp_thread.start()
     
     #receber comandos do usuario

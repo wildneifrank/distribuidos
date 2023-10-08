@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto3',
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n protoBuff/MulticastMessage.proto\":\n\x10MulticastMessage\x12\n\n\x02ip\x18\x01 \x01(\t\x12\x0c\n\x04type\x18\x02 \x01(\t\x12\x0c\n\x04port\x18\x03 \x01(\x05\x62\x06proto3'
+  serialized_pb=b'\n protoBuff/MulticastMessage.proto\"\\\n\x10MulticastMessage\x12\n\n\x02ip\x18\x01 \x01(\t\x12\x0c\n\x04type\x18\x02 \x01(\t\x12\x0c\n\x04port\x18\x03 \x01(\x05\x12\x14\n\x07udpport\x18\x04 \x01(\x05H\x00\x88\x01\x01\x42\n\n\x08_udpportb\x06proto3'
 )
 
 
@@ -54,6 +54,13 @@ _MULTICASTMESSAGE = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='udpport', full_name='MulticastMessage.udpport', index=3,
+      number=4, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
   ],
   extensions=[
   ],
@@ -65,11 +72,19 @@ _MULTICASTMESSAGE = _descriptor.Descriptor(
   syntax='proto3',
   extension_ranges=[],
   oneofs=[
+    _descriptor.OneofDescriptor(
+      name='_udpport', full_name='MulticastMessage._udpport',
+      index=0, containing_type=None,
+      create_key=_descriptor._internal_create_key,
+    fields=[]),
   ],
   serialized_start=36,
-  serialized_end=94,
+  serialized_end=128,
 )
 
+_MULTICASTMESSAGE.oneofs_by_name['_udpport'].fields.append(
+  _MULTICASTMESSAGE.fields_by_name['udpport'])
+_MULTICASTMESSAGE.fields_by_name['udpport'].containing_oneof = _MULTICASTMESSAGE.oneofs_by_name['_udpport']
 DESCRIPTOR.message_types_by_name['MulticastMessage'] = _MULTICASTMESSAGE
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 

@@ -42,13 +42,12 @@ class SensorController:
             print("\nDesligado\n")
 
     def atualizar_temperatura(self):
-        while self.running:
-            if self.state:
-                self.get_Temp()
-                self.send_status()
-            time.sleep(5)
+        if self.state:
+            self.get_Temp()
+            self.send_status()
+        time.sleep(5)
 
-    def send_status(self, sender_ip, sender_port):
+    def send_status(self, sender_ip, sender_udpport):
         status = sensor_pb2.Sensor()
         while True:
             udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -56,41 +55,20 @@ class SensorController:
             status.state = self.state
 
             msg = status.SerializeToString()
-            udp_socket.sendto(msg, (sender_ip, sender_port))
-            time.sleep(5)
-            print('enviou')
+            udp_socket.sendto(msg, (sender_ip, sender_udpport))
+            print('enviou up')
+            print
+            self.atualizar_temperatura()
             udp_socket.close()
 
-def main(sender_ip, sender_port):
-    senTemp_ip = "127.0.0.1"
-    senTemp_port = 8004
-    gateway_ip = sender_ip
-    gateway_port = sender_port
-    try: 
-        # with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        #         s.connect((gateway_ip, gateway_port))
-        #         mensagem_pb = mumes.MulticastMessage()
-        #         mensagem_pb.ip = senTemp_ip  # Substitua pelo nome do remetente
-        #         mensagem_pb.port = senTemp_port
-        #         mensagem_pb.type = '1'  # Substitua pelo conteúdo da mensagem
-
-        #         # Serializar a mensagem protobuf em bytes
-        #         msg_serializada = mensagem_pb.SerializeToString()
-        #         s.sendall(msg_serializada)
-        #         print('enviou')
-        #         s.close()
-
-        
-
+def main(sender_ip, sender_udpport):
+    try:
         # Inicialize o controlador
         controller = SensorController()
 
+        
         # Inicie a thread para atualizar a temperatura e enviar para o gateway
-        thread_atualizacao = threading.Thread(target=controller.atualizar_temperatura)
-        thread_atualizacao.daemon = True  # Torna a thread um daemon para que ela termine com o programa principal
-        thread_atualizacao.start()
-        # Inicie a thread para atualizar a temperatura e enviar para o gateway
-        udp_socket = threading.Thread(target=controller.send_status, args=(sender_ip, sender_port,))
+        udp_socket = threading.Thread(target=controller.send_status, args=(sender_ip, sender_udpport,))
         udp_socket.daemon = True  # Torna a thread um daemon para que ela termine com o programa principal
         udp_socket.start()
         while True:
@@ -103,4 +81,4 @@ def main(sender_ip, sender_port):
 
 if __name__ == "__main__":
     gate = mrcv.multicast_receiver()
-    main(gate[0],gate[1])
+    main(gate[0],gate[3])
