@@ -52,11 +52,9 @@ def multicast_receiver():
 
     receiver = MulticastReceiver(multicast_group, multicast_port, interface_ip)
     ip, port, type, udpport = receiver.receive_multicast_messages()
-
-    return (ip, port, type, udpport)
-
-        # Para fechar os sockets quando terminar, você pode chamar os métodos 'close':
     receiver.close()
+    return (ip, port, type, udpport)
+    
 if __name__ == "__main__":
     multicast_group = '224.0.0.1'
     multicast_port = 5000
