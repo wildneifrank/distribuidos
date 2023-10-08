@@ -24,6 +24,7 @@ class MulticastReceiver:
             # Desserializar a mensagem usando o mesmo módulo gerado
             message = MulticastMessage.MulticastMessage()
             message.ParseFromString(data)
+            print(message)
 
             print(f"De: {message.ip}\nMensagem: {message.type}\n")
 

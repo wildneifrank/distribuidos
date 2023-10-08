@@ -7,6 +7,8 @@ import User as usr
 import pandas as pd
 from protoBuff import lampada_pb2 as lames
 from protoBuff import ArCondicionado_pb2 as armes
+from protoBuff import  MulticastMessage_pb2 as mumes
+PORT = 8002
 
 
 def tcpComunicationLamp(ip, port, op):
@@ -17,7 +19,7 @@ def tcpComunicationLamp(ip, port, op):
     # Mensagem que você deseja enviar
     lpctrl = lames.LampadaControl()
     lpctrl.control = op
-    msg_srl = lpctrl.SerializeToString
+    msg_srl = lpctrl.SerializeToString()
 
     # Crie um socket TCP
     cliente_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -27,11 +29,14 @@ def tcpComunicationLamp(ip, port, op):
 
     # Envie a mensagem para o servidor
     cliente_socket.send(msg_srl)
+    print('enviou')
 
     # Aguarde a resposta do servidor (opcional)
-    lpstatus = lames.Lampada()
+    
 
     data = cliente_socket.recv(1024)
+    lpstatus = lames.Lampada()
+    print('recebeu')
     lpstatus.ParseFromString(data)
     print(f'Status da lampada: {lpstatus.status}')
 
@@ -43,17 +48,19 @@ def tcpComunicationArCond(ip, port, op):
     host = ip  # Endereço IP ou nome de host do servidor
     porta = port       # Porta do servidor
 
-    arctrl = armes.ArCondicionado()
-    arctrl.op = op
-    msg_srl = arctrl.SerializeToString
+    arctrl = armes.Controle()
+    arctrl.operacao = op
+    msg_srl = arctrl.SerializeToString()
 
     cliente_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     cliente_socket.connect((host, porta))
     cliente_socket.send(msg_srl)
 
-    arstatus = armes.ArCondicionado()
+    arstatus = armes.attributes()
     data = cliente_socket.recv(1024)
+    print('recebido')
     arstatus.ParseFromString(data)
+    print(arstatus)
     if arstatus.state:
         print(f'Status do Ar Condicionado: Ligado em {arstatus.temp}ºC')
     else:
@@ -63,8 +70,44 @@ def tcpComunicationArCond(ip, port, op):
 
 
 def multiRcv():
+    
+    # Configurações do servidor
+    host = mrcv.get_active_interface_ip('wifi0')  # Endereço IP do servidor (use 'localhost' para conexões locais)
+    porta = PORT     # Porta em que o servidor irá ouvir
+
+    # Crie um socket TCP
+    servidor_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+    # Vincule o socket ao endereço e porta do servidor
+    servidor_socket.bind((host, porta))
+
+    # Espere por conexões de clientes (até 5 clientes em fila)
+    servidor_socket.listen(5)
+
+    print(f"Servidor TCP está ouvindo em {host}:{porta}")
+
     while True:
-        disp = mrcv.multicast_receiver()
+        # Aceite uma conexão de cliente
+        cliente_socket, endereco_cliente = servidor_socket.accept()
+
+        print(f"Conexão estabelecida com {endereco_cliente}")
+
+        # Receba a mensagem enviada pelo cliente
+        mensagem_recebida = cliente_socket.recv(1024)  # Ajuste o tamanho do buffer conforme necessário
+
+        # Deserializar a mensagem protobuf recebida
+        mensagem_pb = mumes.MulticastMessage()
+        mensagem_pb.ParseFromString(mensagem_recebida)
+
+        # Processar a mensagem conforme necessário
+        print(f'Mensagem recebida de {mensagem_pb.ip}:{mensagem_pb.port}')
+        print(f'Tipo de mensagem: {mensagem_pb.type}')
+        
+        # Aqui você pode adicionar a lógica para responder à mensagem, se necessário
+        disp = (mensagem_pb.ip, mensagem_pb.port, mensagem_pb.type)
+        # Feche a conexão com o cliente
+        cliente_socket.close()
+
 
         # Nome do arquivo CSV onde você deseja escrever os dados
         nome_arquivo = 'dados.csv'
@@ -82,10 +125,14 @@ def multiRcv():
 def lp_handle(acao):
     caminho_arquivo = 'dados.csv'
     df = pd.read_csv(caminho_arquivo)
-    if '2' in df['type'].values:
+    print(df)
+    
+    print(df['type'].values[0])
+    if 2 in df['type'].values:
         index = df.index[df['type'] == '2']
+        print(index,'oi index')
         line = df.iloc[index]
-        tcpComunicationLamp(line[0],line[1], acao)
+        tcpComunicationArCond(line[0],line[1], acao)
 
     else:
         print(f'Não existe uma lampada conectada.')
@@ -93,10 +140,10 @@ def lp_handle(acao):
 def ac_handle(acao):
     caminho_arquivo = 'dados.csv'
     df = pd.read_csv(caminho_arquivo)
-    if '3' in df['type'].values:
+    if 3 in df['type'].values:
         index = df.index[df['type'] == '3']
-        line = df.iloc[index]
-        tcpComunicationLamp(line[0],line[1], acao) # mudar pra arc
+        line = ['localhost', 8003]
+        tcpComunicationArCond(line[0],line[1], acao) # mudar pra arc
 
     else:
         print(f'Não existe um ar condicionado conectado.')
@@ -108,12 +155,12 @@ def ac_handle(acao):
 
 if __name__ == "__main__":
     #envia o multicast
-    msnd.multicast_sender()
+    msnd.multicast_sender('0')
 
     #nomeia labels do arquivo csv
     nome_arquivo = 'dados.csv'
     labels = ('ip', 'port', 'type')
-    with open(nome_arquivo, 'a', newline='') as arquivo_csv:
+    with open(nome_arquivo, 'w', newline='') as arquivo_csv:
             # Crie um objeto escritor CSV
             escritor_csv = csv.writer(arquivo_csv)
 

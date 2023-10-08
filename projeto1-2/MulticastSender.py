@@ -2,7 +2,7 @@ import socket
 import struct
 from protoBuff import MulticastMessage_pb2 as mumes
 
-def multicast_sender():
+def multicast_sender(type):
     # Configurações do multicast
     multicast_group = '224.0.0.1'
     multicast_port = 5000
@@ -27,8 +27,9 @@ def multicast_sender():
 
     try:
         message = mumes.MulticastMessage()
-        message.sender = interface_ip
-        message.type = "Este dispositivo está online"
+        message.ip = interface_ip
+        message.port = 8002
+        message.type = type
 
         # Serialize a mensagem protobuf em bytes
         message_bytes = message.SerializeToString()

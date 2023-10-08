@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto3',
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n protoBuff/MulticastMessage.proto\"0\n\x10MulticastMessage\x12\x0e\n\x06sender\x18\x01 \x01(\t\x12\x0c\n\x04type\x18\x02 \x01(\tb\x06proto3'
+  serialized_pb=b'\n protoBuff/MulticastMessage.proto\":\n\x10MulticastMessage\x12\n\n\x02ip\x18\x01 \x01(\t\x12\x0c\n\x04type\x18\x02 \x01(\t\x12\x0c\n\x04port\x18\x03 \x01(\x05\x62\x06proto3'
 )
 
 
@@ -34,7 +34,7 @@ _MULTICASTMESSAGE = _descriptor.Descriptor(
   create_key=_descriptor._internal_create_key,
   fields=[
     _descriptor.FieldDescriptor(
-      name='sender', full_name='MulticastMessage.sender', index=0,
+      name='ip', full_name='MulticastMessage.ip', index=0,
       number=1, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
@@ -44,6 +44,13 @@ _MULTICASTMESSAGE = _descriptor.Descriptor(
       name='type', full_name='MulticastMessage.type', index=1,
       number=2, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='port', full_name='MulticastMessage.port', index=2,
+      number=3, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
@@ -60,7 +67,7 @@ _MULTICASTMESSAGE = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=36,
-  serialized_end=84,
+  serialized_end=94,
 )
 
 DESCRIPTOR.message_types_by_name['MulticastMessage'] = _MULTICASTMESSAGE
