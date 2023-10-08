@@ -25,9 +25,9 @@ class MulticastReceiver:
             message = MulticastMessage.MulticastMessage()
             message.ParseFromString(data)
 
-            print(f"De: {message.sender}\nMensagem: {message.type}\n")
+            print(f"De: {message.ip}\nMensagem: {message.type}\n")
 
-            return message.sender
+            return message.ip, message.port, message.type
 
     def close(self):
         self.sock.close()
@@ -43,7 +43,19 @@ def get_active_interface_ip(interface_name):
     except Exception as e:
         print(f"Erro ao obter a interface IP: {e}")
         return None
+def multicast_receiver():
+    multicast_group = '224.0.0.1'
+    multicast_port = 5000
+    interface_ip = get_active_interface_ip("wifi0")
 
+
+    receiver = MulticastReceiver(multicast_group, multicast_port, interface_ip)
+    ip, port, type = receiver.receive_multicast_messages()
+
+    return (ip, port, type)
+
+        # Para fechar os sockets quando terminar, você pode chamar os métodos 'close':
+    receiver.close()
 if __name__ == "__main__":
     multicast_group = '224.0.0.1'
     multicast_port = 5000

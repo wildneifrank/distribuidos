@@ -166,23 +166,22 @@ def init_client():
         print('Lista de ações:')
         for i in range(len(acoes)):
             print(i+1, '-', acoes[i])
-        acao_lock.acquire()
-        acao = input('Digite o número da ação que deseja tomar?\n')
-        acao_lock.release()
-        if acao == '1':
-            print('A tempeatura do sensor é:', senTemp.temperatura)
-        elif acao == '2':
-            print('O status da lampada é', lamp.status)
-        elif acao == '3':
-            print('')
-        elif acao == '4':
-            print('')
-        elif acao == '5':
-            print('')
-        elif acao == '6':
-            print('')
-        elif acao == '7':
-            print('')
+        
+            acao = input('Digite o número da ação que deseja tomar?\n')
+            if acao == '1':
+                print('A tempeatura do sensor é:', senTemp.temperatura)
+            elif acao == '2':
+                print('O status da lampada é', lamp.status)
+            elif acao == '3':
+                print('')
+            elif acao == '4':
+                print('')
+            elif acao == '5':
+                print('')
+            elif acao == '6':
+                print('')
+            elif acao == '7':
+                print('')
 
 acoes=[ 
     'Saber a temperatura do sensor',

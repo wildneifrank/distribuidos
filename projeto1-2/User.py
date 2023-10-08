@@ -6,8 +6,9 @@ class ArCon:
         self.temperatura = None
         self.status = 'Desligado'
 class Lampada:
-    def __init__(self):
-        self.status = 'Desligado'
+    def __init__(self, ip, port):
+        self.ip = ''
+        self.port = ''
 import gateway as gtw
 
 
