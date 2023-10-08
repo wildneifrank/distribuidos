@@ -1,5 +1,0 @@
-syntax = "proto3";
-
-message TemperatureMessage {
-  float temperature = 1;
-}
