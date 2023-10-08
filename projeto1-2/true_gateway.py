@@ -57,7 +57,7 @@ def multiRcv():
 def lp_handle(acao):
     caminho_arquivo = 'dados.csv'
     df = pd.read_csv(caminho_arquivo)
-    if '1' in df['type'].values:
+    if '2' in df['type'].values:
         index = df.index[df['type'] == '2']
         line = df.iloc[index]
         tcpComunicationLamp(line[0],line[1], acao)
