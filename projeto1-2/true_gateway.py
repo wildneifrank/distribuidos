@@ -6,6 +6,8 @@ import csv
 import User as usr
 import pandas as pd
 from protoBuff import lampada_pb2 as lames
+from protoBuff import ArCondicionado_pb2 as armes
+
 
 def tcpComunicationLamp(ip, port, op):
     # Configurações do servidor
@@ -36,6 +38,29 @@ def tcpComunicationLamp(ip, port, op):
     # Feche o socket do cliente
     cliente_socket.close()
 
+def tcpComunicationArCond(ip, port, op):
+    # Configurações do servidor
+    host = ip  # Endereço IP ou nome de host do servidor
+    porta = port       # Porta do servidor
+
+    arctrl = armes.ArCondicionado()
+    arctrl.op = op
+    msg_srl = arctrl.SerializeToString
+
+    cliente_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    cliente_socket.connect((host, porta))
+    cliente_socket.send(msg_srl)
+
+    arstatus = armes.ArCondicionado()
+    data = cliente_socket.recv(1024)
+    arstatus.ParseFromString(data)
+    if arstatus.state:
+        print(f'Status do Ar Condicionado: Ligado em {arstatus.temp}ºC')
+    else:
+        print('Desligado')
+    
+    cliente_socket.close()
+
 
 def multiRcv():
     while True:
@@ -64,6 +89,17 @@ def lp_handle(acao):
 
     else:
         print(f'Não existe uma lampada conectada.')
+
+def ac_handle(acao):
+    caminho_arquivo = 'dados.csv'
+    df = pd.read_csv(caminho_arquivo)
+    if '3' in df['type'].values:
+        index = df.index[df['type'] == '3']
+        line = df.iloc[index]
+        tcpComunicationLamp(line[0],line[1], acao) # mudar pra arc
+
+    else:
+        print(f'Não existe um ar condicionado conectado.')
 
     
 
