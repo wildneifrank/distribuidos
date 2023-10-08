@@ -8,6 +8,7 @@ import pandas as pd
 from protoBuff import lampada_pb2 as lames
 from protoBuff import ArCondicionado_pb2 as armes
 from protoBuff import  MulticastMessage_pb2 as mumes
+from protoBuff import sensor_pb2 as semes
 PORT = 8002
 
 
@@ -152,7 +153,7 @@ def ac_handle(acao):
 def sensorRcv():
     # Configurações do servidor udp
     host = '127.0.0.1'  # Endereço IP do servidor
-    porta = 12345       # Porta do servidor
+    porta = 5000       # Porta do servidor
 
     # Crie um socket UDP
     servidor_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -165,14 +166,17 @@ def sensorRcv():
     while True:
         # Receba uma mensagem do cliente e o endereço do cliente
         mensagem, endereco_cliente = servidor_socket.recvfrom(1024)
+        print('udp recebido')
+        # Dados que você deseja salvar
+        sensor_msg = semes.Sensor()
+        sensor_msg.ParseFromString(mensagem)
+        # Nome do arquivo de texto
+        nome_arquivo = "temperatura.txt"
 
-        print(f"Recebido de {endereco_cliente}: {mensagem.decode('utf-8')}")
+        # Abrir o arquivo em modo de escrita
+        with open(nome_arquivo, "w") as arquivo:
+            arquivo.write(sensor_msg)
 
-        # Faça o processamento da mensagem, se necessário
-
-        # Envie uma resposta (opcional)
-        resposta = 'Mensagem recebida com sucesso!'
-        servidor_socket.sendto(resposta.encode('utf-8'), endereco_cliente)
 
 
 
@@ -193,7 +197,10 @@ if __name__ == "__main__":
 
     # thread para receber infos dos dispositivos
     mrcv_thread = threading.Thread(target=multiRcv)
-    mrcv_thread.start()
+    #mrcv_thread.start()
+
+    udp_thread = threading.Thread(target=sensorRcv)
+    udp_thread.start()
     
     #receber comandos do usuario
     usr.init_client()
