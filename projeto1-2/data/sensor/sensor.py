@@ -1,86 +1,103 @@
 import sensor_pb2
-import socket
 import sys
 sys.path.append('../../')
 import MulticastReceiver as mrcv
+import socket
+import random
+import threading
+import time
 
-class Sensor:
-    def __init__(self, IP, tipo):
-        self.status = False
-        self.IP = IP
-        self.tipo = tipo
+class ArCondicionadoController:
+    def __init__(self):
+        self.sensor = sensor_pb2.Sensor()
+        self.sensor.state = False
+        self.sensor.temperature = random.uniform(20, 30)
 
-    # def ligar(self):
-    #     self.status = True
-    #     print("Lâmpada ligada.")
+    def getTemp(self):
+        value = self.sensor.temperature
+        if random.random() > 0.5:
+            self.sensor.temperature = value - random.random()
+        else:
+            self.sensor.temperature = value + random.random()
 
-    # def desligar(self):
-    #     self.status = False
-    #     print("Lâmpada desligada.")
+    def ligar(self):
+        if self.sensor.state:
+            print(f"O Sensor já está ligado.")
+        else:
+            self.sensor.state = True
+            print(f"O Sensor agora está ligado.")
 
-    # def get_status(self):
-    #     return self.status
+    def desligar(self):
+        if self.sensor.state:
+            self.sensor.state = False
+            print("O Sensor agora está em standby.")
+        else:
+            print(f"O Sensor já está em standby.")
 
-def main():
-    
-    sensor_ip = "127.0.0.1"  
-    sensor_tipo = "sensor"
+    def aumentar_temperatura(self):
+        if self.sensor.state and self.sensor.temperature < 27:
+            self.sensor.temperature += 1
+            print(f"Temperatura aumentada para {self.sensor.temperature}ºC")
+        elif self.sensor.temperature >= 27:
+            print(f"Temperatura está no máximo de {self.sensor.temperature}ºC")
+        else:
+            print("O Sensor está desligado. Não é possível aumentar a temperatura.")
 
-    sensor = Sensor(sensor_ip, sensor_tipo)
-    
-    gateway_ip = "127.0.0.1"  
-    gateway_port = 8080  
+    def diminuir_temperatura(self):
+        if self.sensor.state and self.sensor.temperature > 16:
+            self.sensor.temperature -= 1
+            print(f"Temperatura diminuída para {self.sensor.temperature}ºC")
+        elif self.sensor.temperature <= 16:
+            print(f"Temperatura está no mínimo de {self.sensor.temperature}ºC")
+        else:
+            print("O Sensor está desligado. Não é possível diminuir a temperatura.")
 
-    try:
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            s.connect((gateway_ip, gateway_port))
+    def mostrar_estado(self):
+        if self.sensor.state:
+            print(f"\nTemperatura: {self.sensor.temperature} graus Celsius\n")
+            print(f"coisa serializada: {self.sensor.SerializeToString()}")
+        else:
+            print("\nDesligado\n")
 
-            sensorInfo = sensor_pb2.SensorControl()
-            sensorInfo_msg = sensorInfo.SerializeToString()
-            s.sendall(sensorInfo_msg)
-            print("Infomarções enviadas")
+    def atualizar_temperatura(self):
+        while True:
+            self.getTemp()
+            self.enviar_status_para_gateway()
+            time.sleep(5)
 
-            # while True:
-            #     ## Aguardar uma mensagem do gateway
-            #     data = s.recv(1024)
-            #     print("Recebeu comando do servidor")
-            #     if not data:
-            #         break  
+    def enviar_status_para_gateway(self):
+        status = sensor_pb2.Sensor()
+        status.temperature = self.sensor.temperature
 
-            #     ## Interpretar a mensagem do gateway
-            #     control_msg = sensor_pb2.SensorControl()
-            #     control_msg.ParseFromString(data)
-
-                
-            #     if control_msg == "1":
-            #         print("Pegar Status")
-            #         lampada.get_status()
-            #     elif control_msg == "2":
-            #         lampada.ligar()
-            #     elif control_msg == "3":
-            #         lampada.desligar()
-
-            #     lstatus = sensor_pb2.Lampada()
-            #     lstatus.status = lampada.get_status()
-            #     print(type(lampada.get_status()))
-            #     status_msg = lstatus.SerializeToString()
-            #     s.sendall(status_msg)
-            #     print("Status enviado")
-
-    except Exception as e:
-        print(f"Erro ao conectar ao gateway: {e}")
-
-
-if __name__ == "__main__":
-    
-    multicast_group = '224.0.0.1'
-    multicast_port = 5000
-    interface_ip = mrcv.get_active_interface_ip("wifi0")
+        msg = status.SerializeToString()
+        s.sendall(msg)
 
 
-    receiver = mrcv.MulticastReceiver(multicast_group, multicast_port, interface_ip)
-    sender_ip = receiver.receive_multicast_messages()
+controller = ArCondicionadoController()
 
-    # Para fechar os sockets quando terminar, você pode chamar os métodos 'close':
-    receiver.close()
-    main()
+HOST = "127.0.0.1"
+PORT = 8922
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+s.connect((HOST, PORT))
+
+# Inicie a thread para atualizar a temperatura e enviar para o gateway
+thread_atualizacao = threading.Thread(target=controller.atualizar_temperatura)
+thread_atualizacao.start()
+
+while True:
+    msg = s.recv(1024).decode('utf-8')
+    if msg == 'exit':
+        break
+    if msg == "ligar":
+        controller.ligar()
+    elif msg == "desligar":
+        controller.desligar()
+    elif msg == "sair":
+        break
+    else:
+        print("Não foi possível realizar a ação")
+        continue
+    s.sendall(controller.sensor.SerializeToString())
+
+s.close()
+exit()

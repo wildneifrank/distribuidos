@@ -19,56 +19,10 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto3',
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\x0csensor.proto\"7\n\rSensorControl\x12\x0c\n\x04type\x18\x01 \x01(\t\x12\n\n\x02ip\x18\x02 \x01(\t\x12\x0c\n\x04port\x18\x03 \x01(\x05\"\x1d\n\x06Sensor\x12\x13\n\x0btemperature\x18\x01 \x01(\x02\x62\x06proto3'
+  serialized_pb=b'\n\x0csensor.proto\"\xa0\x01\n\x06Sensor\x12\x11\n\x04type\x18\x01 \x01(\tH\x00\x88\x01\x01\x12\x0f\n\x02ip\x18\x02 \x01(\tH\x01\x88\x01\x01\x12\x11\n\x04port\x18\x03 \x01(\x05H\x02\x88\x01\x01\x12\x12\n\x05state\x18\x04 \x01(\x08H\x03\x88\x01\x01\x12\x18\n\x0btemperature\x18\x05 \x01(\x02H\x04\x88\x01\x01\x42\x07\n\x05_typeB\x05\n\x03_ipB\x07\n\x05_portB\x08\n\x06_stateB\x0e\n\x0c_temperatureb\x06proto3'
 )
 
 
-
-
-_SENSORCONTROL = _descriptor.Descriptor(
-  name='SensorControl',
-  full_name='SensorControl',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  create_key=_descriptor._internal_create_key,
-  fields=[
-    _descriptor.FieldDescriptor(
-      name='type', full_name='SensorControl.type', index=0,
-      number=1, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"".decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='ip', full_name='SensorControl.ip', index=1,
-      number=2, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"".decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='port', full_name='SensorControl.port', index=2,
-      number=3, type=5, cpp_type=1, label=1,
-      has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  serialized_options=None,
-  is_extendable=False,
-  syntax='proto3',
-  extension_ranges=[],
-  oneofs=[
-  ],
-  serialized_start=16,
-  serialized_end=71,
-)
 
 
 _SENSOR = _descriptor.Descriptor(
@@ -80,8 +34,36 @@ _SENSOR = _descriptor.Descriptor(
   create_key=_descriptor._internal_create_key,
   fields=[
     _descriptor.FieldDescriptor(
-      name='temperature', full_name='Sensor.temperature', index=0,
-      number=1, type=2, cpp_type=6, label=1,
+      name='type', full_name='Sensor.type', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='ip', full_name='Sensor.ip', index=1,
+      number=2, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='port', full_name='Sensor.port', index=2,
+      number=3, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='state', full_name='Sensor.state', index=3,
+      number=4, type=8, cpp_type=7, label=1,
+      has_default_value=False, default_value=False,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='temperature', full_name='Sensor.temperature', index=4,
+      number=5, type=2, cpp_type=6, label=1,
       has_default_value=False, default_value=float(0),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -97,21 +79,53 @@ _SENSOR = _descriptor.Descriptor(
   syntax='proto3',
   extension_ranges=[],
   oneofs=[
+    _descriptor.OneofDescriptor(
+      name='_type', full_name='Sensor._type',
+      index=0, containing_type=None,
+      create_key=_descriptor._internal_create_key,
+    fields=[]),
+    _descriptor.OneofDescriptor(
+      name='_ip', full_name='Sensor._ip',
+      index=1, containing_type=None,
+      create_key=_descriptor._internal_create_key,
+    fields=[]),
+    _descriptor.OneofDescriptor(
+      name='_port', full_name='Sensor._port',
+      index=2, containing_type=None,
+      create_key=_descriptor._internal_create_key,
+    fields=[]),
+    _descriptor.OneofDescriptor(
+      name='_state', full_name='Sensor._state',
+      index=3, containing_type=None,
+      create_key=_descriptor._internal_create_key,
+    fields=[]),
+    _descriptor.OneofDescriptor(
+      name='_temperature', full_name='Sensor._temperature',
+      index=4, containing_type=None,
+      create_key=_descriptor._internal_create_key,
+    fields=[]),
   ],
-  serialized_start=73,
-  serialized_end=102,
+  serialized_start=17,
+  serialized_end=177,
 )
 
-DESCRIPTOR.message_types_by_name['SensorControl'] = _SENSORCONTROL
+_SENSOR.oneofs_by_name['_type'].fields.append(
+  _SENSOR.fields_by_name['type'])
+_SENSOR.fields_by_name['type'].containing_oneof = _SENSOR.oneofs_by_name['_type']
+_SENSOR.oneofs_by_name['_ip'].fields.append(
+  _SENSOR.fields_by_name['ip'])
+_SENSOR.fields_by_name['ip'].containing_oneof = _SENSOR.oneofs_by_name['_ip']
+_SENSOR.oneofs_by_name['_port'].fields.append(
+  _SENSOR.fields_by_name['port'])
+_SENSOR.fields_by_name['port'].containing_oneof = _SENSOR.oneofs_by_name['_port']
+_SENSOR.oneofs_by_name['_state'].fields.append(
+  _SENSOR.fields_by_name['state'])
+_SENSOR.fields_by_name['state'].containing_oneof = _SENSOR.oneofs_by_name['_state']
+_SENSOR.oneofs_by_name['_temperature'].fields.append(
+  _SENSOR.fields_by_name['temperature'])
+_SENSOR.fields_by_name['temperature'].containing_oneof = _SENSOR.oneofs_by_name['_temperature']
 DESCRIPTOR.message_types_by_name['Sensor'] = _SENSOR
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
-
-SensorControl = _reflection.GeneratedProtocolMessageType('SensorControl', (_message.Message,), {
-  'DESCRIPTOR' : _SENSORCONTROL,
-  '__module__' : 'sensor_pb2'
-  # @@protoc_insertion_point(class_scope:SensorControl)
-  })
-_sym_db.RegisterMessage(SensorControl)
 
 Sensor = _reflection.GeneratedProtocolMessageType('Sensor', (_message.Message,), {
   'DESCRIPTOR' : _SENSOR,
