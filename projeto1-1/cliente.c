@@ -5,20 +5,16 @@
 #include <process.h>
 
 #pragma comment(lib, "ws2_32.lib")
-// oi
 SOCKET clientSocket;
 char user[256];
 
-// Função para envio de mensagens
 void SendMessageThread() {
-    // Enviar dados ao servidor
     printf("Digite o nick desejado: ");
     scanf("%s", user);
         if (send(clientSocket, user, strlen(user), 0) < 0) {
             printf("Erro ao enviar dados ao servidor\n");
         }
     while (1) {
-        // Enviar dados ao servidor
         char message[256];
         fgets(message, sizeof(message), stdin);
         if (send(clientSocket, message, strlen(message), 0) < 0) {
@@ -28,10 +24,8 @@ void SendMessageThread() {
     }
 }
 
-// Função para recebimento de mensagens
 void ReceiveMessageThread() {
     while (1) {
-        // Receber resposta do servidor
         char buffer[1024];
         memset(buffer, 0, sizeof(buffer));
         int bytesReceived = recv(clientSocket, buffer, sizeof(buffer), 0);
@@ -97,16 +91,14 @@ int main() {
         return 1;
     }
 
-    // Criar threads para envio e recebimento de mensagens
     _beginthread(SendMessageThread, 0, NULL);
     _beginthread(ReceiveMessageThread, 0, NULL);
 
-    // Aguardar pelo término das threads
+
     while (1) {
-        // Espera infinita
+
     }
 
-    // Fechar o socket e finalizar o Winsock
     closesocket(clientSocket);
     WSACleanup();
 
