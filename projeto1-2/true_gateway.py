@@ -30,12 +30,14 @@ def tcpComunicationLamp(ip, port, op):
 
     # Envie a mensagem para o servidor
     cliente_socket.send(msg_srl)
+    print('enviou')
 
     # Aguarde a resposta do servidor (opcional)
     
 
     data = cliente_socket.recv(1024)
     lpstatus = lames.Lampada()
+    print('recebeu')
     lpstatus.ParseFromString(data)
     print(f'Status da lampada: {lpstatus.status}')
 
@@ -57,6 +59,7 @@ def tcpComunicationArCond(ip, port, op):
 
     arstatus = armes.attributes()
     data = cliente_socket.recv(1024)
+    print('recebido')
     arstatus.ParseFromString(data)
     print(arstatus)
     if arstatus.state:
@@ -82,9 +85,13 @@ def multiRcv():
     # Espere por conexões de clientes (até 5 clientes em fila)
     servidor_socket.listen(5)
 
+    print(f"Servidor TCP está ouvindo em {host}:{porta}")
+
     while True:
         # Aceite uma conexão de cliente
         cliente_socket, endereco_cliente = servidor_socket.accept()
+
+        print(f"Conexão estabelecida com {endereco_cliente}")
 
         # Receba a mensagem enviada pelo cliente
         mensagem_recebida = cliente_socket.recv(1024)  # Ajuste o tamanho do buffer conforme necessário
@@ -92,6 +99,10 @@ def multiRcv():
         # Deserializar a mensagem protobuf recebida
         mensagem_pb = mumes.MulticastMessage()
         mensagem_pb.ParseFromString(mensagem_recebida)
+
+        # Processar a mensagem conforme necessário
+        print(f'Mensagem recebida de {mensagem_pb.ip}:{mensagem_pb.port}')
+        print(f'Tipo de mensagem: {mensagem_pb.type}')
         
         # Aqui você pode adicionar a lógica para responder à mensagem, se necessário
         disp = (mensagem_pb.ip, mensagem_pb.port, mensagem_pb.type)
@@ -110,15 +121,19 @@ def multiRcv():
             # Escreva a tupla no arquivo CSV
             escritor_csv.writerow(disp)
 
+        print(f"A tupla {disp} foi escrita no arquivo CSV '{nome_arquivo}'.")
+
 def lp_handle(acao):
     caminho_arquivo = 'dados.csv'
     df = pd.read_csv(caminho_arquivo)
+    print(df)
     
     print(df['type'].values[0])
     if 2 in df['type'].values:
-        index = df.index[df['type'] == 2][0]
+        index = df.index[df['type'] == '2']
+        print(index,'oi index')
         line = df.iloc[index]
-        tcpComunicationLamp(line['ip'], line['port'], acao)
+        tcpComunicationArCond(line[0],line[1], acao)
 
     else:
         print(f'Não existe uma lampada conectada.')
@@ -127,9 +142,9 @@ def ac_handle(acao):
     caminho_arquivo = 'dados.csv'
     df = pd.read_csv(caminho_arquivo)
     if 3 in df['type'].values:
-        index = df.index[df['type'] == 3][0]
-        line = df.iloc[index]
-        tcpComunicationArCond(line['ip'], line['port'], acao) # mudar pra arc
+        index = df.index[df['type'] == '3']
+        line = ['localhost', 8003]
+        tcpComunicationArCond(line[0],line[1], acao) # mudar pra arc
 
     else:
         print(f'Não existe um ar condicionado conectado.')
@@ -146,12 +161,16 @@ def sensor_rcv():
     # Vincule o socket ao endereço e à porta do servidor
     servidor_socket.bind((host, porta))
 
+    print(f"Servidor UDP está ouvindo em {host}:{porta}")
+
     while True:
         # Receba uma mensagem do cliente e o endereço do cliente
         mensagem, endereco_cliente = servidor_socket.recvfrom(1024)
+        print('udp recebido')
         # Dados que você deseja salvar
         sensor_msg = semes.Sensor()
         sensor_msg.ParseFromString(mensagem)
+        print(sensor_msg.temperature)
         # Nome do arquivo de texto
         nome_arquivo = "temperatura.txt"
 
@@ -195,7 +214,7 @@ if __name__ == "__main__":
 
     # thread para receber infos dos dispositivos
     mrcv_thread = threading.Thread(target=multiRcv)
-    mrcv_thread.start()
+    #mrcv_thread.start()
 
     udp_thread = threading.Thread(target=sensor_rcv)
     udp_thread.start()

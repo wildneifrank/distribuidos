@@ -1,7 +1,7 @@
 import socket
-import netifaces
 import subprocess
 from protoBuff import MulticastMessage_pb2 as MulticastMessage
+import sys  # Importe o módulo sys para acessar os argumentos de linha de comando
 
 class MulticastReceiver:
     def __init__(self, multicast_group, multicast_port, interface_ip):
@@ -44,27 +44,25 @@ def get_active_interface_ip(interface_name):
     except Exception as e:
         print(f"Erro ao obter a interface IP: {e}")
         return None
-def multicast_receiver():
-    multicast_group = '224.0.0.1'
-    multicast_port = 5000
-    interface_ip = get_active_interface_ip("wifi0")
 
-
+def multicast_receiver(multicast_group, multicast_port):
+    # Resto do seu código para criar o receptor de multicast
+    # ...
     receiver = MulticastReceiver(multicast_group, multicast_port, interface_ip)
     ip, port, type, udpport = receiver.receive_multicast_messages()
     receiver.close()
     return (ip, port, type, udpport)
-    
+
 if __name__ == "__main__":
-    multicast_group = '224.0.0.1'
-    multicast_port = 5000
-    interface_ip = get_active_interface_ip("eno1")
+    if len(sys.argv) != 2:
+        print("Uso: python3 MulticastReceiver.py <multicast_port>")
+        sys.exit(1)
 
-    while(True):
-        receiver = MulticastReceiver(multicast_group, multicast_port, interface_ip)
-        sender_ip = receiver.receive_multicast_messages()
+    multicast_port = int(sys.argv[1])
+    multicast_group = '224.0.0.1'  # Substitua pelo grupo multicast desejado
+    interface_ip = get_active_interface_ip("eth0")  # Substitua pela sua interface de rede
 
-    # Para fechar os sockets quando terminar, você pode chamar os métodos 'close':
-    receiver.close()
-
-        
+    while True:
+        receiver = multicast_receiver(multicast_group, multicast_port)
+        sender_ip, sender_port, message_type, sender_udpport = receiver
+        # Você pode usar os valores retornados conforme necessário
