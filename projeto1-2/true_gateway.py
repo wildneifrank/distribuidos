@@ -13,27 +13,19 @@ PORT = 8002
 
 
 def tcpComunicationLamp(ip, port, op):
-    # Configurações do servidor
-    host = ip  # Endereço IP ou nome de host do servidor
-    porta = port       # Porta do servidor
+    host = ip  
+    porta = port      
 
-    # Mensagem que você deseja enviar
     lpctrl = lames.LampadaControl()
     lpctrl.control = op
     msg_srl = lpctrl.SerializeToString()
 
-    # Crie um socket TCP
     cliente_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-    # Conecte-se ao servidor
     cliente_socket.connect((host, porta))
 
-    # Envie a mensagem para o servidor
     cliente_socket.send(msg_srl)
     print('enviou')
-
-    # Aguarde a resposta do servidor (opcional)
-    
 
     data = cliente_socket.recv(1024)
     lpstatus = lames.Lampada()
@@ -41,13 +33,11 @@ def tcpComunicationLamp(ip, port, op):
     lpstatus.ParseFromString(data)
     print(f'Status da lampada: {lpstatus.status}')
 
-    # Feche o socket do cliente
     cliente_socket.close()
 
 def tcpComunicationArCond(ip, port, op):
-    # Configurações do servidor
-    host = ip  # Endereço IP ou nome de host do servidor
-    porta = port       # Porta do servidor
+    host = ip  
+    porta = port     
 
     arctrl = armes.Controle()
     arctrl.operacao = op
@@ -71,54 +61,41 @@ def tcpComunicationArCond(ip, port, op):
 
 
 def multiRcv():
-    
-    # Configurações do servidor
-    host = mrcv.get_active_interface_ip('wifi0')  # Endereço IP do servidor (use 'localhost' para conexões locais)
-    porta = PORT     # Porta em que o servidor irá ouvir
+    #Configurações do servidor
+    host = mrcv.get_active_interface_ip('wifi0') 
+    porta = PORT   
 
-    # Crie um socket TCP
+    #Criar um socket TCP
     servidor_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-    # Vincule o socket ao endereço e porta do servidor
     servidor_socket.bind((host, porta))
 
-    # Espere por conexões de clientes (até 5 clientes em fila)
+    # Até 5 clientes em fila
     servidor_socket.listen(5)
 
     print(f"Servidor TCP está ouvindo em {host}:{porta}")
 
     while True:
-        # Aceite uma conexão de cliente
         cliente_socket, endereco_cliente = servidor_socket.accept()
-
         print(f"Conexão estabelecida com {endereco_cliente}")
 
-        # Receba a mensagem enviada pelo cliente
-        mensagem_recebida = cliente_socket.recv(1024)  # Ajuste o tamanho do buffer conforme necessário
+        mensagem_recebida = cliente_socket.recv(1024) 
 
-        # Deserializar a mensagem protobuf recebida
+        #Deserializa a mensagem protobuf recebida
         mensagem_pb = mumes.MulticastMessage()
         mensagem_pb.ParseFromString(mensagem_recebida)
 
-        # Processar a mensagem conforme necessário
         print(f'Mensagem recebida de {mensagem_pb.ip}:{mensagem_pb.port}')
         print(f'Tipo de mensagem: {mensagem_pb.type}')
         
-        # Aqui você pode adicionar a lógica para responder à mensagem, se necessário
         disp = (mensagem_pb.ip, mensagem_pb.port, mensagem_pb.type)
-        # Feche a conexão com o cliente
         cliente_socket.close()
 
-
-        # Nome do arquivo CSV onde você deseja escrever os dados
+        #Escrever os dados em um arquivo .csv
         nome_arquivo = 'dados.csv'
 
-        # Abra o arquivo CSV para escrita
         with open(nome_arquivo, 'a', newline='') as arquivo_csv:
-            # Crie um objeto escritor CSV
             escritor_csv = csv.writer(arquivo_csv)
 
-            # Escreva a tupla no arquivo CSV
             escritor_csv.writerow(disp)
 
         print(f"A tupla {disp} foi escrita no arquivo CSV '{nome_arquivo}'.")
@@ -144,82 +121,62 @@ def ac_handle(acao):
     if 3 in df['type'].values:
         index = df.index[df['type'] == '3']
         line = ['localhost', 8003]
-        tcpComunicationArCond(line[0],line[1], acao) # mudar pra arc
+        tcpComunicationArCond(line[0],line[1], acao) 
 
     else:
         print(f'Não existe um ar condicionado conectado.')
 
     
 def sensor_rcv():
-    # Configurações do servidor udp
-    host = mrcv.get_active_interface_ip('wifi0')# Endereço IP do servidor
-    porta = 5000       # Porta do servidor
+    host = mrcv.get_active_interface_ip('wifi0')
+    porta = 5000       
 
     # Crie um socket UDP
     servidor_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-
-    # Vincule o socket ao endereço e à porta do servidor
     servidor_socket.bind((host, porta))
 
     print(f"Servidor UDP está ouvindo em {host}:{porta}")
 
     while True:
-        # Receba uma mensagem do cliente e o endereço do cliente
         mensagem, endereco_cliente = servidor_socket.recvfrom(1024)
-        print('udp recebido')
-        # Dados que você deseja salvar
+
         sensor_msg = semes.Sensor()
         sensor_msg.ParseFromString(mensagem)
         print(sensor_msg.temperature)
-        # Nome do arquivo de texto
-        nome_arquivo = "temperatura.txt"
 
-        # Abrir o arquivo em modo de escrita
+        # Arquivo de texto para armazenar temperaturas
+        nome_arquivo = "temperatura.txt"
         with open(nome_arquivo, "w") as arquivo:
             arquivo.write(str(sensor_msg.temperature))
 
 def sensor_handle(acao):
-    # Nome do arquivo de texto
     nome_arquivo = "Temperatura.txt"
-
-    # Lista para armazenar os dados lidos do arquivo
     dados_lidos = 0
 
-    # Abrir o arquivo em modo de leitura
     with open(nome_arquivo, "r") as arquivo:
             for linha in arquivo:
-            # Remova a quebra de linha (\n) no final de cada linha e adicione à lista
                 dados_lidos = linha.strip()
 
-    # Exiba os dados lidos
     print('Temperatura é: ',dados_lidos)
 
 
-
-
-
 if __name__ == "__main__":
-    #envia o multicast
+    #Envia o multicast
     msnd.multicast_sender('0')
 
-    #nomeia labels do arquivo csv
+    #Nomeia labels do arquivo csv
     nome_arquivo = 'dados.csv'
     labels = ('ip', 'port', 'type')
     with open(nome_arquivo, 'w', newline='') as arquivo_csv:
-            # Crie um objeto escritor CSV
             escritor_csv = csv.writer(arquivo_csv)
 
-            # Escreva a tupla no arquivo CSV
             escritor_csv.writerow(labels)
 
-    # thread para receber infos dos dispositivos
     mrcv_thread = threading.Thread(target=multiRcv)
-    #mrcv_thread.start()
 
     udp_thread = threading.Thread(target=sensor_rcv)
     udp_thread.start()
     
-    #receber comandos do usuario
     usr.init_client()
 
 

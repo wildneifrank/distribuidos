@@ -54,20 +54,6 @@ def main(sender_ip, sender_port):
     
     controller = ArCondicionadoController()
 
-    """ multicast_group = '224.0.0.1'
-    multicast_port = 5000
-    interface_ip = mrcv.get_active_interface_ip("Ethernet Ethernet") #ip do objeto
-    interface_ip = '127.0.0.1'
-
-    print(f'{multicast_group} - {multicast_port} - {interface_ip}')
-    receiver = mrcv.MulticastReceiver(multicast_group, multicast_port, interface_ip)
-    sender_ip = receiver.receive_multicast_messages()
-
-        # Para fechar os sockets quando terminar, você pode chamar os métodos 'close':
-    receiver.close() """
-
-    """Lança o MultiCast pra dizer q ta ligado aqui <<"""
-
     arcon_ip = "127.0.0.1"
     arcon_port = 8003
     gateway_ip = sender_ip
@@ -75,9 +61,9 @@ def main(sender_ip, sender_port):
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             s.connect((gateway_ip, gateway_port))
             mensagem_pb = mumes.MulticastMessage()
-            mensagem_pb.ip = arcon_ip  # Substitua pelo nome do remetente
+            mensagem_pb.ip = arcon_ip  
             mensagem_pb.port = arcon_port
-            mensagem_pb.type = '3'  # Substitua pelo conteúdo da mensagem
+            mensagem_pb.type = '3' 
 
             # Serializar a mensagem protobuf em bytes
             msg_serializada = mensagem_pb.SerializeToString()
@@ -86,37 +72,31 @@ def main(sender_ip, sender_port):
             s.close()
             while True:
                 # Configurações do servidor
-                host = arcon_ip  # Endereço IP do servidor (use 'localhost' para conexões locais)
-                porta = arcon_port   # Porta em que o servidor irá ouvir
+                host = arcon_ip  
+                porta = arcon_port   
 
                 # Crie um socket TCP
                 servidor_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-                # Vincule o socket ao endereço e porta do servidor
                 servidor_socket.bind((host, porta))
 
-                # Espere por conexões de clientes (até 5 clientes em fila)
+                # Até 5 clientes em fila
                 servidor_socket.listen(5)
 
                 print(f"Servidor TCP está ouvindo em {host}:{porta}")
 
                 while True:
-                    # Aceite uma conexão de cliente
                     cliente_socket, endereco_cliente = servidor_socket.accept()
 
                     print(f"Conexão estabelecida com {endereco_cliente}")
 
-                    # Envie uma mensagem de confirmação para o cliente
                     mensagem = "Conexão estabelecida com sucesso!"
                     print(mensagem)
 
-                    ## Aguardar uma mensagem do gateway
                     data = cliente_socket.recv(1024)
                     print("Recebeu comando do servidor")
                     if not data:
                         break  
 
-                    ## Interpretar a mensagem do gateway
                     control_msg = ArCondicionado_pb2.Controle()
                     control_msg.ParseFromString(data)
 

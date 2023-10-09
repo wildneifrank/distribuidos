@@ -17,13 +17,10 @@ lamp = usr.Lampada()
 
 acao_lock = threading.Lock()
 
-
-
 def obj_comunication(conn,addr):
     try:
-        data = conn.recv(1024)  # Tamanho máximo da mensagem é 1024 bytes
+        data = conn.recv(1024) 
         if data:
-            # Parse da mensagem protobuf
             message = mumes.MulticastMessage()
             message.ParseFromString(data)
             sender = message.sender
@@ -50,9 +47,6 @@ def obj_comunication(conn,addr):
         conn.close()
         obj_sock.remove((conn,addr))
         
-    
-
-    
 
 ############################# tratamentos de objetos #####################################
 
@@ -75,7 +69,7 @@ def sensor_handle(sender, conn, addr):
         
     return 0
 
-#ALampada
+#Lampada
 def lamp_handle(sender, conn, addr):
     while True:
         msg_ctrl = lames.LampadaControl()
@@ -86,7 +80,6 @@ def lamp_handle(sender, conn, addr):
                 print('lmap')
             msg_ctrl.control = '1'
 
-            # Codifique a mensagem em bytes
             msg_bytes = lames.SerializeToString(msg_ctrl)
             conn.sendall(msg_bytes)
             msg_ctt = lames.Lampada()
@@ -94,31 +87,6 @@ def lamp_handle(sender, conn, addr):
             print(msg_ctt.status)
 
     return 0
-
-#Ar-condicionado
-# def ac_handle(sender):
-#     server_ip = '192.168.1.245'
-#     server_port = 6000
-#     # Crie um socket TCP
-#     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-#     # Vincular o socket ao endereço e porta do servidor
-#     sock.bind((server_ip, server_port))
-
-#     # Espere por conexões de clientes
-#     sock.listen(1)
-
-#     print(f"Servidor TCP escutando em {server_ip}:{server_port}")
-#     objetos[sender] = None
-
-#     while True:
-#         conn, addr = sock.accept()
-#         data = senmes.SensorMessage()
-#         data.ParseFromString(conn.recv(1024))
-#         objetos[sender] = data.valor
-#         print(f"Conexão estabelecida com {objetos}")
-        
-#     return 0
 
 def init_client():
     print('Bem vindo ao Alexo Rabbit')
@@ -156,8 +124,6 @@ acoes=[
 
 
 if __name__ == "__main__":
-    # Crie uma thread para executar a função multicast_sender
-
     msnd.multicast_sender('0')
 
     objetos = {}
@@ -165,13 +131,10 @@ if __name__ == "__main__":
     server_ip = mrcv.get_active_interface_ip('wifi0')
     print(server_ip)
     server_port = 8002
-    # Crie um socket TCP
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-    # Vincular o socket ao endereço e porta do servidor
     sock.bind((server_ip, server_port))
 
-    # Espere por conexões de clientes
     sock.listen(5)
 
     client_thread = threading.Thread(target=init_client)
@@ -185,7 +148,5 @@ if __name__ == "__main__":
 
         obj_thread = threading.Thread(target=obj_comunication, args=(conn,addr))
         obj_thread.start()
-        # Inicie a thread
-        print('foi')
 
     

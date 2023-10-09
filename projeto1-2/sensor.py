@@ -11,7 +11,7 @@ class SensorController:
     def __init__(self):
         self.state = False
         self.temperature = random.uniform(20, 30)
-        self.running = True  # Variável para controlar a execução da thread
+        self.running = True  
 
     def get_Temp(self):
         value = self.sensor.temperature
@@ -63,19 +63,16 @@ class SensorController:
 
 def main(sender_ip, sender_udpport):
     try:
-        # Inicialize o controlador
         controller = SensorController()
 
-        
-        # Inicie a thread para atualizar a temperatura e enviar para o gateway
         udp_socket = threading.Thread(target=controller.send_status, args=(sender_ip, sender_udpport,))
-        udp_socket.daemon = True  # Torna a thread um daemon para que ela termine com o programa principal
+        udp_socket.daemon = True  
         udp_socket.start()
         while True:
             pass
 
     except KeyboardInterrupt:
-        controller.running = False  # Sinalize para a thread de atualização que ela deve parar quando o usuário pressionar Ctrl+C
+        controller.running = False  
         udp_socket.close()
 
 
